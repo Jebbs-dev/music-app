@@ -10,12 +10,14 @@ const Layout = () => {
   return (
     <>
       <LinearGradient
-        colors={["#212528", "#111315"]}
-        // colors={["#7F1DFF", "#3B82F6", "#F472B6"]}
-        // start={{ x: 0, y: 0 }}
-        // end={{ x: 1, y: 1 }}
-        // style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      >
+      
+          colors={["#7A0C15", "#181818", "#000000"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          // style={{ flex: 1 }}
+        >
+   
+      
         <SafeAreaView>
           {selectedTab === "list" ? <MusicList /> : <Playing />}
         </SafeAreaView>
