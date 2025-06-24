@@ -6,9 +6,12 @@ interface RoundedButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
   onPress: (event: GestureResponderEvent) => void;
   className: string;
+  color: string;
+  iconType?: "ionicon" | "others";
+  otherIcon?: React.ComponentType<any>;
 }
 
-const RoundedButton = ({ icon, onPress, className = "p-6"}: RoundedButtonProps) => {
+const RoundedButton = ({ icon, onPress, className = "p-6", color, iconType, otherIcon}: RoundedButtonProps) => {
 
   return (
     <TouchableOpacity 
@@ -17,7 +20,8 @@ const RoundedButton = ({ icon, onPress, className = "p-6"}: RoundedButtonProps) 
       activeOpacity={0.7}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      <Ionicons name={icon} size={24} color="#ccc" />
+      {iconType === "ionicon" && <Ionicons name={icon} size={24} color={color} />}
+      {iconType !== "ionicon" && otherIcon && React.createElement(otherIcon, { name: icon, size: 24, color })}
     </TouchableOpacity>
   )
 }
