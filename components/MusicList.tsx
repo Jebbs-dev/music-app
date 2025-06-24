@@ -8,7 +8,7 @@ import RoundedButton from "./rounded-button";
 
 const MusicList = () => {
   const { data, setSelectedTab, setSelectedSong } = useMusicData();
-  const { setCurrentSongIndex, setIsPlaying } = useMusicControls();
+  const { currentSongIndex, setCurrentSongIndex, setIsPlaying } = useMusicControls();
 
   const handlePlaySong = (music: MusicType) => {
     setSelectedSong(music);
@@ -60,11 +60,11 @@ const MusicList = () => {
         </View>
       </View>
       <ScrollView>
-        {data.map((music: MusicType) => (
+        {data.map((music: MusicType, index) => (
           <TouchableOpacity
             key={music.id}
             onPress={() => handlePlaySong(music)}
-            className="flex-row justify-between items-center px-7 py-5 rounded-2xl"
+            className={`flex-row justify-between items-center px-7 py-5 rounded-full ${currentSongIndex === index ? "bg-black mx-3" : ""}`}
           >
             <View className="">
               <Text className="text-white text-xl">{music.title}</Text>
