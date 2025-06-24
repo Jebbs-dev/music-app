@@ -12,12 +12,18 @@ import {
   useAudioPlayerStatus,
 } from "expo-audio";
 import React, { useEffect, useRef } from "react";
-import { Image, Text, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import NeumorphicButton from "./neumorphic-button";
 import RoundedButton from "./rounded-button";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
+import { useMusicView } from "@/store/music-view";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const Playing = () => {
-  const { selectedTab, setSelectedTab, selectedSong, data } = useMusicData();
+  const { selectedTab, setSelectedTab, selectedSong, setSelectedSong, data } =
+    useMusicData();
   const {
     isPlaying,
     setIsPlaying,
@@ -33,6 +39,14 @@ const Playing = () => {
     setRepeatMode,
   } = useMusicControls();
 
+  const {
+    dynamicColor,
+    setDynamicColor,
+    setPlayerView,
+    setOverlayView,
+    setMusicViewOption,
+  } = useMusicView();
+
   const currentSong: MusicType = data[currentSongIndex];
   const audioSource = currentSong.url;
   const player = useAudioPlayer(audioSource);
@@ -44,8 +58,8 @@ const Playing = () => {
   const minimumValue = useSharedValue(0);
   const maximumValue = useSharedValue(1);
 
-  // Configure audio mode for playback
   useEffect(() => {
+    // Configure audio mode once
     const configureAudio = async () => {
       try {
         await setAudioModeAsync({
@@ -56,19 +70,16 @@ const Playing = () => {
         console.log("Error configuring audio mode:", error);
       }
     };
-
     configureAudio();
+
+    // Cleanup on unmount
+    return () => {
+      stopProgressTracking();
+    };
   }, []);
 
-  // Update selected song when current song index changes
   useEffect(() => {
-    if (currentSong && currentSong.id !== selectedSong.id) {
-      // This would need to be handled in the store, but for now we'll use the current song
-    }
-  }, [currentSongIndex, currentSong, selectedSong]);
-
-  // Handle play/pause
-  useEffect(() => {
+    // Handle play/pause and song change
     if (isPlaying) {
       player.play();
       // startProgressTracking();
@@ -76,54 +87,41 @@ const Playing = () => {
       player.pause();
       stopProgressTracking();
     }
-  }, [isPlaying, player]);
 
-  // Handle song change
-  useEffect(() => {
-    stopProgressTracking();
+    if (data[currentSongIndex]) {
+      setSelectedSong(data[currentSongIndex]);
+    }
+
+    // Reset position/duration on song change
     setPosition(0);
     setDuration(0);
+  }, [isPlaying, currentSongIndex, player]);
 
-      setTimeout(() => {
-        setIsPlaying(true); 
-        player.play();
-      }, 100);
-  }, [currentSongIndex]);
-
-  // Get duration when audio loads
   useEffect(() => {
-    if (status.isLoaded && status.duration) {
-      setDuration(status.duration);
-    }
-  }, [status.duration]);
-
-  // Update position from status
-  useEffect(() => {
-    if (status.isLoaded && status.currentTime) {
-      setPosition(status.currentTime);
-    }
-  }, [status.currentTime]);
-
-  // Handle completion
-  useEffect(() => {
-    if (status.isLoaded && status.didJustFinish) {
-      if (repeatMode === "one") {
-        // Repeat current song
-        player.seekTo(0);
-        player.play();
-      } else if (repeatMode === "all") {
-        // Go to next song
-        handleNext();
-      } else {
-        // Stop playing
-        setIsPlaying(false);
-        handleNext();
-        setTimeout(() => {
-          setIsPlaying(true);
-        }, 100); // Small delay to ensure the next song starts playing
+    // Handle status updates (duration, position, completion)
+    if (status.isLoaded) {
+      if (status.duration) setDuration(status.duration);
+      if (status.currentTime) setPosition(status.currentTime);
+      if (status.didJustFinish) {
+        if (repeatMode === "one") {
+          player.seekTo(0);
+          player.play();
+        } else if (repeatMode === "all") {
+          handleNext();
+        } else {
+          setIsPlaying(false);
+          handleNext();
+          setTimeout(() => setIsPlaying(true), 100);
+        }
       }
     }
-  }, [status.didJustFinish, repeatMode]);
+  }, [status, repeatMode]);
+
+  useEffect(() => {
+    // Update shared values for slider
+    progress.value = withTiming(position, { duration: 1000 });
+    maximumValue.value = withTiming(duration || 1, { duration: 1000 });
+  }, [position, duration]);
 
   // const startProgressTracking = () => {
   //   // Progress is now handled by useAudioPlayerStatus hook
@@ -163,11 +161,15 @@ const Playing = () => {
   const handleNext = () => {
     const nextIndex = getNextSongIndex();
     setCurrentSongIndex(nextIndex);
+
+    setIsPlaying(true);
   };
 
   const handlePrevious = () => {
     const prevIndex = getPreviousSongIndex();
     setCurrentSongIndex(prevIndex);
+
+    setIsPlaying(true);
   };
 
   const handleShuffle = () => {
@@ -181,41 +183,23 @@ const Playing = () => {
     setRepeatMode(modes[nextIndex]);
   };
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopProgressTracking();
-    };
-  }, []);
-
-  // Update shared values when position and duration change
-  useEffect(() => {
-    progress.value = withTiming(position, {
-      duration: 1000,
-    });
-  }, [position]);
-
-  useEffect(() => {
-    maximumValue.value = withTiming(duration || 1, {
-      duration: 1000,
-    });
-  }, [duration]);
-
   return (
-    <View className="h-full">
+    <View className="h-screen">
       <View className="flex flex-row justify-between mx-7 items-center ios:mt-7 android:mt-14">
-        <NeumorphicButton
-          icon="arrow-back"
-          onPress={() => setSelectedTab("list")}
-          className="p-4"
+        <Entypo
+          name="chevron-down"
+          size={28}
+          color="#fff"
+          onPress={() => setPlayerView("minimized")}
         />
         <Text className="text-center text-white text-sm font-semibold uppercase">
           Playing Now
         </Text>
-        <NeumorphicButton
-          icon="menu"
+        <MaterialCommunityIcons
+          name="dots-vertical"
+          size={24}
+          color="white"
           onPress={() => setSelectedTab("list")}
-          className="p-4"
         />
       </View>
       <View className="items-center mt-10 border-2  rounded-lg border-[#2a2d2fcd] shadow-inner shadow-gray-700 mx-auto h-[300px] w-[350px]">
@@ -259,7 +243,7 @@ const Playing = () => {
             cacheTrackTintColor: "#4a4a4a",
             disableMinTrackTintColor: "#999999",
             bubbleBackgroundColor: "#ffffff",
-            heartbeatColor: "#e17645"
+            heartbeatColor: "#e17645",
           }}
           sliderHeight={3}
           thumbWidth={15}
@@ -278,19 +262,23 @@ const Playing = () => {
       <View className="flex flex-row justify-between mt-2 mx-7">
         <RoundedButton
           icon="shuffle"
+          iconType="ionicon"
           onPress={() => {
             console.log("Shuffle Button Pressed");
             handleShuffle();
           }}
-          className={`py-6 ${isShuffleOn ? "bg-orange-700" : "hover:bg-gray-700"}`}
+          className={`py-6 ${isShuffleOn ? "text-orange-700" : "hover:bg-gray-700"}`}
+          color={isShuffleOn ? "#c2410c" : "#ccc"}
         />
         <RoundedButton
           icon="play-skip-back"
+          iconType="ionicon"
           onPress={() => {
             console.log("Previous Button Pressed");
             handlePrevious();
           }}
           className="p-6 hover:bg-gray-700"
+          color="#ccc"
         />
         <NeumorphicButton
           icon={isPlaying ? "pause" : "play"}
@@ -302,25 +290,88 @@ const Playing = () => {
         />
         <RoundedButton
           icon="play-skip-forward"
+          iconType="ionicon"
           onPress={() => {
             console.log("Next Button Pressed");
             handleNext();
           }}
           className="p-6 hover:bg-gray-700"
+          color="#ccc"
         />
-        <RoundedButton
-          icon="repeat"
-          onPress={() => {
-            console.log("Repeat Button Pressed");
-            handleRepeat();
-          }}
-          className={`py-6 rounded-full ${repeatMode !== "none" ? "bg-orange-700" : "hover:bg-gray-700"}`}
-        />
+        {repeatMode === "none" && (
+          <RoundedButton
+            icon="repeat"
+            iconType="others"
+            otherIcon={MaterialIcons}
+            onPress={() => {
+              console.log("Repeat Button Pressed");
+              handleRepeat();
+            }}
+            className={`py-6 rounded-full`}
+            color="#ccc"
+          />
+        )}
+        {repeatMode === "one" && (
+          <RoundedButton
+            icon="repeat-one"
+            iconType="others"
+            otherIcon={MaterialIcons}
+            onPress={() => {
+              console.log("Repeat Button Pressed");
+              handleRepeat();
+            }}
+            className={`py-6 rounded-full`}
+            color="#c2410c"
+          />
+        )}
+        {repeatMode === "all" && (
+          <RoundedButton
+            icon="repeat"
+            iconType="others"
+            otherIcon={MaterialIcons}
+            onPress={() => {
+              console.log("Repeat Button Pressed");
+              handleRepeat();
+            }}
+            className={`py-6 rounded-full`}
+            color="#c2410c"
+          />
+        )}
       </View>
       <View className="flex flex-row justify-between mt-20 mx-7 px-7">
-        <Text className="text-gray-400">UP NEXT</Text>
-        <Text className="text-gray-400">LYRICS</Text>
-        <Text className="text-gray-400">RELATED</Text>
+        <TouchableOpacity>
+          <Text
+            className="text-gray-400"
+            onPress={() => {
+              setMusicViewOption("up next");
+              setOverlayView("options");
+            }}
+          >
+            UP NEXT
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            className="text-gray-400"
+            onPress={() => {
+              setMusicViewOption("lyrics");
+              setOverlayView("options");
+            }}
+          >
+            LYRICS
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            className="text-gray-400"
+            onPress={() => {
+              setMusicViewOption("related");
+              setOverlayView("options");
+            }}
+          >
+            RELATED
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
