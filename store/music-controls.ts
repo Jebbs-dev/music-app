@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface MusicControlsState {
   isPlaying: boolean;
   setIsPlaying: (playing: boolean) => void;
-  sound: any; 
+  sound: any;
   setSound: (sound: any) => void;
   currentSongIndex: number;
   setCurrentSongIndex: (index: number) => void;
@@ -15,6 +15,8 @@ interface MusicControlsState {
   setIsShuffleOn: (shuffle: boolean) => void;
   repeatMode: "none" | "one" | "all";
   setRepeatMode: (mode: "none" | "one" | "all") => void;
+  isPlayerMenuOpen?: boolean;
+  setIsPlayerMenuOpen?: (isOpen: boolean) => void;
 }
 
 export const useMusicControls = create<MusicControlsState>((set) => ({
@@ -32,4 +34,6 @@ export const useMusicControls = create<MusicControlsState>((set) => ({
   setIsShuffleOn: (shuffle) => set({ isShuffleOn: shuffle }),
   repeatMode: "none",
   setRepeatMode: (mode) => set({ repeatMode: mode }),
+  isPlayerMenuOpen: false,
+  setIsPlayerMenuOpen: (isOpen) => set({ isPlayerMenuOpen: isOpen }),
 }));
