@@ -37,6 +37,7 @@ const Playing = () => {
     setIsShuffleOn,
     repeatMode,
     setRepeatMode,
+    setIsPlayerMenuOpen,
   } = useMusicControls();
 
   const {
@@ -199,7 +200,9 @@ const Playing = () => {
           name="dots-vertical"
           size={24}
           color="white"
-          onPress={() => setSelectedTab("list")}
+          onPress={() => {
+            setIsPlayerMenuOpen!(true);
+          }}
         />
       </View>
       <View className="items-center mt-10 border-2  rounded-lg border-[#2a2d2fcd] shadow-inner shadow-gray-700 mx-auto h-[300px] w-[350px]">
@@ -300,9 +303,9 @@ const Playing = () => {
         />
         {repeatMode === "none" && (
           <RoundedButton
-            icon="repeat"
             iconType="others"
             otherIcon={MaterialIcons}
+            icon="repeat"
             onPress={() => {
               console.log("Repeat Button Pressed");
               handleRepeat();
@@ -313,22 +316,22 @@ const Playing = () => {
         )}
         {repeatMode === "one" && (
           <RoundedButton
-            icon="repeat-one"
             iconType="others"
             otherIcon={MaterialIcons}
+            icon="repeat-one"
             onPress={() => {
               console.log("Repeat Button Pressed");
               handleRepeat();
             }}
-            className={`py-6 rounded-full`}
+            className="py-6 rounded-full"
             color="#c2410c"
           />
         )}
         {repeatMode === "all" && (
           <RoundedButton
-            icon="repeat"
             iconType="others"
             otherIcon={MaterialIcons}
+            icon="repeat"
             onPress={() => {
               console.log("Repeat Button Pressed");
               handleRepeat();
