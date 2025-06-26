@@ -1,6 +1,8 @@
+import PlayerOptionsModal from "@/components/player-options-modal";
 import Playing from "@/components/Playing";
 import PlayingMini from "@/components/PlayingMini";
 import MusicOptions from "@/modules/music/components/music-options";
+import { useMusicControls } from "@/store/music-controls";
 import { useMusicView } from "@/store/music-view";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -24,6 +26,7 @@ const HomeLayout = ({
   children: React.ReactNode;
 }>) => {
   const { playerView, overlayView } = useMusicView();
+  const { isPlayerMenuOpen } = useMusicControls();
   const animatedValue = useRef(new Animated.Value(0)).current; // 0: minimized, 1: full
 
   React.useEffect(() => {
@@ -92,6 +95,9 @@ const HomeLayout = ({
             <View className="flex-1 h-full">
               {/* Minimize button at the top */}
               {overlayView === "player" ? <Playing /> : <MusicOptions />}
+              {overlayView === "player" && isPlayerMenuOpen && (
+                <PlayerOptionsModal />
+              )}
             </View>
           </SafeAreaView>
         </Animated.View>
