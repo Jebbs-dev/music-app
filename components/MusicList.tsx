@@ -8,7 +8,8 @@ import RoundedButton from "./rounded-button";
 
 const MusicList = () => {
   const { data, setSelectedTab, setSelectedSong } = useMusicData();
-  const { currentSongIndex, setCurrentSongIndex, setIsPlaying } = useMusicControls();
+  const { currentSongIndex, setCurrentSongIndex, setIsPlaying } =
+    useMusicControls();
 
   const handlePlaySong = (music: MusicType) => {
     setSelectedSong(music);
@@ -30,11 +31,17 @@ const MusicList = () => {
           icon="arrow-back"
           onPress={() => setSelectedTab("playing")}
           className="p-4"
+          color="#ccc"
         />
         <Text className="text-center mt-3 text-white font-semibold text-sm">
           MUSIC LIST
         </Text>
-        <RoundedButton icon="search" onPress={() => null} className="p-4" />
+        <RoundedButton
+          icon="search"
+          onPress={() => null}
+          className="p-4"
+          color="#ccc"
+        />
       </View>
       <View className="my-16">
         <View className="flex flex-row justify-between mx-7 items-center ">
