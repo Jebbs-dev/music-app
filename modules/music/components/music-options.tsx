@@ -12,6 +12,7 @@ import {
   Text,
 } from "react-native";
 import UpNext from "./up-next";
+import Related from "./related";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -127,6 +128,8 @@ const MusicOptions = () => {
                 </View>
               </View>
               {musicViewOption === "up next" && <UpNext />}
+              {/* {musicViewOption === "lyrics" && <Lyrics />} */}
+              {musicViewOption === "related" && <Related />}
             </View>
           </Animated.View>
         </View>
