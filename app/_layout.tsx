@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import "../global.css";
+import { QueryProvider } from "@/providers/query-client-provider";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -15,13 +16,15 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen
-          name="(home)"
-          options={{ title: "Home", headerShown: false }}
-        />
-      </Stack>
-    </GestureHandlerRootView>
+    <QueryProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack>
+          <Stack.Screen
+            name="(home)"
+            options={{ title: "Home", headerShown: false }}
+          />
+        </Stack>
+      </GestureHandlerRootView>
+    </QueryProvider>
   );
 }
