@@ -1,5 +1,10 @@
+import { useMusicControls } from "@/store/music-controls";
+import { useMusicData } from "@/store/music-data";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { SongData } from "../types/types";
+import { useEffect } from "react";
+import { API_URL } from "@/utils/api";
 
 type FetchSongsFilters = {
   search?: string;
@@ -7,28 +12,35 @@ type FetchSongsFilters = {
   take: number;
 };
 
-export const useFetchSongs = (filters: FetchSongsFilters = { take: 10 }) => {
-  return useInfiniteQuery({
+export function useFetchSongs(filters: FetchSongsFilters = { take: 10 }) {
+  const { setMusicData, setSelectedSong } = useMusicData();
+  const { setCurrentSongIndex } = useMusicControls();
+
+  const query = useInfiniteQuery({
     queryKey: ["songs", filters.take],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log("fetching songs");
-
-      const response = await axios.get("http://192.168.0.173:8000/songs", {
-        params: {
-          skip: pageParam,
-          take: filters.take,
-          search: filters.search,
-        },
+      const response = await axios.get(`${API_URL}/songs`, {
+        params: { skip: pageParam, take: filters.take, search: filters.search },
       });
-      return response.data.songs;
+      return response.data.songs as SongData[];
     },
     getNextPageParam: (lastPage, allPages) => {
-      // If the last page had fewer songs than expected, there's nothing more to load
-      if (lastPage.length < (filters.take ?? 10)) return undefined;
-      return allPages.flat().length; // Next `skip` value
+      if (lastPage.length < filters.take) return undefined;
+      return allPages.flat().length;
     },
     initialPageParam: 0,
     refetchOnWindowFocus: false,
-    placeholderData: keepPreviousData,
   });
-};
+
+  // Set selected song and current index when data loads
+  useEffect(() => {
+    if (query.data) {
+      const allSongs = query.data.pages.flat();
+      setSelectedSong(allSongs[0]);
+      setCurrentSongIndex(0);
+      setMusicData(allSongs);
+    }
+  }, [query.data]);
+
+  return query;
+}
