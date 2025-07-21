@@ -1,5 +1,8 @@
+import { useMusicData } from "@/store/music-data";
+import { API_URL } from "@/utils/api";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useEffect } from "react";
 
 type FetchAlbumsFilters = {
   search?: string;
@@ -8,18 +11,19 @@ type FetchAlbumsFilters = {
 };
 
 export const useFetchAlbums = (filters: FetchAlbumsFilters = { take: 10 }) => {
-  return useInfiniteQuery({
+  const { setAlbumsData } = useMusicData();
+
+  const query = useInfiniteQuery({
     queryKey: ["albums", filters.take],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log("fetching albums");
-
-      const response = await axios.get("http://192.168.0.173:8000/albums", {
+      const response = await axios.get(`${API_URL}/albums`, {
         params: {
           skip: pageParam,
           take: filters.take,
           search: filters.search,
         },
       });
+
       return response.data.albums;
     },
     getNextPageParam: (lastPage, allPages) => {
@@ -31,4 +35,14 @@ export const useFetchAlbums = (filters: FetchAlbumsFilters = { take: 10 }) => {
     refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    if (query.data) {
+      // Flatten the pages and set albums data in the store
+      const allAlbums = query.data.pages.flat();
+      setAlbumsData(allAlbums);
+    }
+  }, [query.data]);
+
+  return query;
 };
