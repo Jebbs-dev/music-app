@@ -1,9 +1,9 @@
+import { QueryProvider } from "@/providers/query-client-provider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import "../global.css";
-import { QueryProvider } from "@/providers/query-client-provider";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -22,6 +22,22 @@ export default function RootLayout() {
           <Stack.Screen
             name="(home)"
             options={{ title: "Home", headerShown: false }}
+          />
+          <Stack.Screen
+            name="search-modal"
+            options={{
+              presentation: "fullScreenModal",
+              headerShown: false,
+              animation: "fade",
+            }}
+          />
+          <Stack.Screen
+            name="artist-profile"
+            options={{
+              presentation: "fullScreenModal",
+              headerShown: false,
+              animation: "slide_from_left"
+            }}
           />
         </Stack>
       </GestureHandlerRootView>
