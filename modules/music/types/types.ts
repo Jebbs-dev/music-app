@@ -6,7 +6,7 @@ export type User = {
   role: string;
   createdAt: string;
   updatedAt: string;
-}
+};
 
 export type Artist = {
   id: string;
@@ -18,8 +18,8 @@ export type Artist = {
   createdAt?: string;
   updatedAt?: string;
   albums?: Album[];
-
-}
+  songs?: SongData[];
+};
 
 export type Album = {
   id: string;
@@ -30,8 +30,7 @@ export type Album = {
   createdAt?: string;
   updatedAt?: string;
   artist?: Artist;
-}
-
+};
 
 export type SongData = {
   id: string;
@@ -47,4 +46,4 @@ export type SongData = {
   updatedAt?: string;
   artist: Artist;
   album?: Album;
-}
+};
