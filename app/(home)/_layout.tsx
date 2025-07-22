@@ -1,8 +1,11 @@
 import PlayerOptionsModal from "@/components/player-options-modal";
 import Playing from "@/components/Playing";
-import PlayingMini from "@/components/PlayingMini";
 import MusicOptions from "@/modules/music/components/music-options";
+import { useFetchAlbums } from "@/modules/music/queries/fetch-albums";
+import { useFetchArtists } from "@/modules/music/queries/fetch-artists";
+import { useFetchSongs } from "@/modules/music/queries/fetch-songs";
 import { useMusicControls } from "@/store/music-controls";
+// import {  useMusicDataQuery } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -14,7 +17,7 @@ import {
   Dimensions,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
+  Text,
   View,
 } from "react-native";
 
@@ -25,8 +28,24 @@ const HomeLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const { playerView, overlayView } = useMusicView();
+  const { playerView, overlayView } =
+    useMusicView();
   const { isPlayerMenuOpen } = useMusicControls();
+
+  const take = 100; // Default number of songs to fetch
+
+  const { isLoading: iSSongsLoading } = useFetchSongs({
+    take,
+  }); // triggers fetch and syncs store
+  const { isLoading: isAlbumsLoading } = useFetchAlbums({
+    take,
+  });
+  const { isLoading: isArtistsLoading } = useFetchArtists({
+    take,
+  });
+
+  const loadingStates = iSSongsLoading && isAlbumsLoading && isArtistsLoading;
+
   const animatedValue = useRef(new Animated.Value(0)).current; // 0: minimized, 1: full
 
   React.useEffect(() => {
@@ -45,6 +64,11 @@ const HomeLayout = ({
 
   return (
     <>
+      {loadingStates && (
+        <View className="absolute z-50 top-0 left-0 right-0 bottom-0 bg-black/80 items-center justify-center">
+          <Text className="text-white text-lg">Loading music...</Text>
+        </View>
+      )}
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: "white",
