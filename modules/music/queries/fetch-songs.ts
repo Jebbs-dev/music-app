@@ -17,7 +17,7 @@ export function useFetchSongs(filters: FetchSongsFilters = { take: 10 }) {
   const { setCurrentSongIndex } = useMusicControls();
 
   const query = useInfiniteQuery({
-    queryKey: ["songs", filters.take],
+    queryKey: ["songs", filters],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await axios.get(`${API_URL}/songs`, {
         params: { skip: pageParam, take: filters.take, search: filters.search },
