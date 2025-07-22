@@ -15,7 +15,7 @@ export const useFetchArtists = (filters: FetchArtistsFilters = { take: 10 }) => 
   const { setArtistsData } = useMusicData();
 
   const query =  useInfiniteQuery({
-    queryKey: ["artists", filters.take],
+    queryKey: ["artists", filters],
     queryFn: async ({ pageParam = 0 }) => {
 
       const response = await axios.get(`${API_URL}/artists`, {

@@ -14,7 +14,7 @@ export const useFetchAlbums = (filters: FetchAlbumsFilters = { take: 10 }) => {
   const { setAlbumsData } = useMusicData();
 
   const query = useInfiniteQuery({
-    queryKey: ["albums", filters.take],
+    queryKey: ["albums", filters],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await axios.get(`${API_URL}/albums`, {
         params: {
