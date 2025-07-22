@@ -9,7 +9,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMusicData } from "@/store/music-data";
-import MusicList from "@/components/MusicList";
 import Playing from "@/components/Playing";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicView } from "@/store/music-view";
@@ -20,8 +19,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link } from "expo-router";
 
 const HomePage = () => {
-  const { playerView, setPlayerView, setAppModalView } = useMusicView();
-  const { data, albumsData, artistsData } = useMusicData();
+  const { playerView, setPlayerView } = useMusicView();
+  const { data, albumsData, artistsData, setCurrentArtist } = useMusicData();
 
   const filteredAlbums = albumsData.filter(
     (album) => album.artistId === artistsData[1]?.id
@@ -123,14 +122,17 @@ const HomePage = () => {
                 </Text>
               </View>
               <View>
-                <Link
-                  href="/artist-profile"
-                  // onPress={() => {
-                  //   setCurrentArtist(artistsData[1]);
-                  // }}
-                >
-                  <Entypo name="chevron-thin-right" size={15} color="white" />
-                </Link>
+                <TouchableOpacity>
+                  <Link
+                    href="/artist-profile"
+                    onPress={() => {
+                      console.log("well pressed");
+                      setCurrentArtist(artistsData[1]);
+                    }}
+                  >
+                    <Entypo name="chevron-thin-right" size={15} color="white" />
+                  </Link>
+                </TouchableOpacity>
               </View>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
