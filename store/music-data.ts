@@ -1,11 +1,6 @@
 import { Album, Artist, SongData } from "@/modules/music/types/types";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { create } from "zustand";
-import { useMusicControls } from "./music-controls";
 
-// Custom hook to use in components/layout for fetching and syncing with the store
-import { useEffect } from "react";
 
 interface MusicDataState {
   selectedTab: "list" | "playing";
@@ -24,6 +19,8 @@ interface MusicDataState {
   // Additional state for selected song
   selectedSong: SongData;
   setSelectedSong: (song: SongData) => void;
+  currentArtist: Artist;
+  setCurrentArtist: (artist: Artist) => void;
 }
 
 export const useMusicData = create<MusicDataState>((set, get) => ({
@@ -49,6 +46,19 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
     url: "",
   },
   setSelectedSong: (song) => set({ selectedSong: song }),
+  currentArtist: {
+    id: "",
+    name: "",
+    email: "string",
+    description: "",
+    image: "",
+    status: "ACTIVE",
+    createdAt: "",
+    updatedAt: "",
+    albums: [],
+    songs: [],
+  },
+  setCurrentArtist: (artist) => set({ currentArtist: artist }),
 }));
 
 // export function useMusicDataQuery(take = 10) {
