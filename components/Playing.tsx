@@ -20,10 +20,11 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useMusicView } from "@/store/music-view";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { SongData } from "@/modules/music/types/types";
 
 const Playing = () => {
-  const { selectedTab, setSelectedTab, selectedSong, setSelectedSong, data } =
-    useMusicData();
+  const { setSelectedSong, data } = useMusicData();
+  
   const {
     isPlaying,
     setIsPlaying,
@@ -48,7 +49,7 @@ const Playing = () => {
     setMusicViewOption,
   } = useMusicView();
 
-  const currentSong: MusicType = data[currentSongIndex];
+  const currentSong: SongData = data[currentSongIndex];
   const audioSource = currentSong.url;
   const player = useAudioPlayer(audioSource);
   const status = useAudioPlayerStatus(player);
@@ -208,9 +209,9 @@ const Playing = () => {
       <View className="items-center mt-10 border-2  rounded-lg border-[#2a2d2fcd] shadow-inner shadow-gray-700 mx-auto h-[300px] w-[350px]">
         <Image
           source={
-            typeof currentSong.artwork === "string"
-              ? { uri: currentSong.artwork }
-              : currentSong.artwork
+            typeof currentSong.coverImage === "string"
+              ? { uri: currentSong.coverImage }
+              : currentSong.coverImage
           }
           alt="image"
           width={250}
@@ -223,7 +224,7 @@ const Playing = () => {
           {currentSong.title}
         </Text>
         <Text className="text-center text-sm text-gray-400 font-semibold mt-1">
-          {currentSong.artist}
+          {currentSong.artist?.name}
         </Text>
       </View>
       <View className="mt-10 px-7 mb-4">

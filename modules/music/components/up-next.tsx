@@ -1,15 +1,19 @@
-import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
-import React from "react";
 import { useMusicData } from "@/store/music-data";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import React from "react";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 
 const UpNext = () => {
   const { data, selectedSong, setSelectedSong } = useMusicData();
 
+
+
+  const slicedData = data.slice(0, 5); 
+
   return (
     <View className="h-full">
       <FlatList
-        data={data}
+        data={slicedData}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => setSelectedSong(item)}>
@@ -21,9 +25,9 @@ const UpNext = () => {
                 <View className="w-14 h-14">
                   <Image
                     source={
-                      typeof item?.artwork === "string"
-                        ? { uri: item.artwork }
-                        : item.artwork
+                      typeof item?.coverImage === "string"
+                        ? { uri: item.coverImage }
+                        : item.coverImage
                     }
                     alt="image"
                     width={25}
@@ -33,7 +37,7 @@ const UpNext = () => {
                 </View>
                 <View className="flex flex-col gap-1 ml-5">
                   <Text className="text-white font-semibold">{item.title}</Text>
-                  <Text className="text-gray-300">{item.artist}</Text>
+                  <Text className="text-gray-300">{item.artist?.name}</Text>
                 </View>
               </View>
               <View className="mr-3">

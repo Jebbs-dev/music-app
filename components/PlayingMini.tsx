@@ -31,9 +31,9 @@ const PlayingMini = ({
           <View className="w-14 h-14">
             <Image
               source={
-                typeof selectedSong?.artwork === "string"
-                  ? { uri: selectedSong.artwork }
-                  : selectedSong.artwork
+                typeof selectedSong?.coverImage === "string"
+                  ? { uri: selectedSong.coverImage }
+                  : selectedSong.coverImage
               }
               alt="image"
               width={25}
@@ -45,7 +45,7 @@ const PlayingMini = ({
             <Text className="text-white font-semibold">
               {selectedSong.title}
             </Text>
-            <Text className="text-gray-300">{selectedSong.artist}</Text>
+            <Text className="text-gray-300">{selectedSong.artist?.name}</Text>
           </View>
         </View>
         <View className="mr-3">

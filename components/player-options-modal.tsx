@@ -132,9 +132,9 @@ const PlayerOptionsModal = () => {
                   <View className="w-14 h-14">
                     <Image
                       source={
-                        typeof selectedSong?.artwork === "string"
-                          ? { uri: selectedSong.artwork }
-                          : selectedSong.artwork
+                        typeof selectedSong?.coverImage === "string"
+                          ? { uri: selectedSong.coverImage }
+                          : selectedSong.coverImage
                       }
                       alt="image"
                       width={25}
@@ -147,7 +147,7 @@ const PlayerOptionsModal = () => {
                       {selectedSong.title}
                     </Text>
                     <View className="flex flex-row items-center gap-2">
-                      <Text className="text-gray-300">{selectedSong.artist}</Text>
+                      <Text className="text-gray-300">{selectedSong.artist?.name}</Text>
                       <Entypo name="dot-single" size={12} color="white" />
                       <Text className="text-gray-300">
                         {formatTime(duration)}
