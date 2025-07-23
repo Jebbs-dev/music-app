@@ -29,23 +29,25 @@ const PlayingMini = ({
       >
         <View className="flex flex-row items-center">
           <View className="w-14 h-14">
-            <Image
-              source={
-                typeof selectedSong?.coverImage === "string"
-                  ? { uri: selectedSong.coverImage }
-                  : selectedSong.coverImage
-              }
-              alt="image"
-              width={25}
-              height={25}
-              className="w-full h-full"
-            />
+            {selectedSong && (
+              <Image
+                source={
+                  typeof selectedSong.coverImage === "string"
+                    ? { uri: selectedSong.coverImage }
+                    : selectedSong.coverImage
+                }
+                alt="image"
+                width={25}
+                height={25}
+                className="w-full h-full"
+              />
+            )}
           </View>
           <View className="flex flex-col gap-1 ml-5">
             <Text className="text-white font-semibold">
-              {selectedSong.title}
+              {selectedSong && selectedSong.title}
             </Text>
-            <Text className="text-gray-300">{selectedSong.artist?.name}</Text>
+            <Text className="text-gray-300">{selectedSong && selectedSong.artist?.name}</Text>
           </View>
         </View>
         <View className="mr-3">
