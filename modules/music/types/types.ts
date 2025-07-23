@@ -26,7 +26,7 @@ export type Album = {
   title: string;
   artistId?: string;
   coverImage: string;
-  releaseDate?: number;
+  releaseDate?: string;
   createdAt?: string;
   updatedAt?: string;
   artist?: Artist;
