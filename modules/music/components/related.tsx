@@ -1,58 +1,60 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { useFetchSongs } from "../queries/fetch-songs";
 import { FlatList } from "react-native-gesture-handler";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useMusicData } from "@/store/music-data";
 import { useEffect, useState } from "react";
 
 const Related = () => {
-  const { selectedSong, setSelectedSong, setSongData, songData } =
-    useMusicData();
-  const [page, setPage] = useState(20);
-  const [skipNumber, setSkipNumber] = useState(0);
-  const [takeNumber, setTakeNumber] = useState(10);
+  const { selectedSong, setSelectedSong, data, setMusicData } = useMusicData();
 
-  const {
-    data: songs,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useFetchSongs({
-    take: takeNumber,
-  });
+  // const takeNumber = 10;
 
-  const allsongs = songs?.pages.flat() || [];
+  // const {
+  //   data: songs,
+  //   isLoading,
+  //   isError,
+  //   fetchNextPage,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  // } = useFetchSongs({
+  //   take: takeNumber,
+  // });
 
+  // const allsongs = songs?.pages.flat() || [];
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-white">Loading...</Text>
-      </View>
-    );
-  }
+  // if (allsongs) {
+  //   setMusicData([...allsongs]);
+  // }
 
-  const interval = setInterval(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, 20000);
+  const slicedSongs = data.slice(5);
 
-  if(!hasNextPage){
-    clearInterval(interval);  
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View className="flex-1 items-center justify-center">
+  //       <Text className="text-white">Loading...</Text>
+  //     </View>
+  //   );
+  // }
+
+  // const interval = setInterval(() => {
+  //   if (hasNextPage && !isFetchingNextPage) {
+  //     fetchNextPage();
+  //   }
+  // }, 20000);
+
+  // if(!hasNextPage){
+  //   clearInterval(interval);
+  // }
 
   // Auto-load next page after 20 seconds if not at end
 
   return (
     <View className="h-full">
       <FlatList
-        data={allsongs}
+        data={slicedSongs}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedSong(item)}>
             <View
               className={`w-full h-20 flex flex-row items-center justify-between p-3 
             ${selectedSong?.id === item.id ? "bg-neutral-800/50" : ""}`}
