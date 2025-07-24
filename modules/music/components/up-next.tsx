@@ -6,8 +6,6 @@ import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 const UpNext = () => {
   const { data, selectedSong, setSelectedSong } = useMusicData();
 
-
-
   const slicedData = data.slice(0, 5); 
 
   return (

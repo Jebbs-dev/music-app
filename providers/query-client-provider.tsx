@@ -4,7 +4,6 @@ interface ProviderProps {
   children: React.ReactNode;
 }
 
-
 export const QueryProvider: React.FC<ProviderProps> = ({ children }) => {
   const queryClient = new QueryClient();
 
