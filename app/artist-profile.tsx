@@ -22,6 +22,7 @@ import Feather from "@expo/vector-icons/Feather";
 import RoundedButton from "@/components/rounded-button";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { chunkIntoRows } from "@/utils/chunk-into-rows";
+import { getYear } from "@/utils/time-format";
 
 const ArtistProfile = () => {
   const isPresented = router.canGoBack();
@@ -30,15 +31,9 @@ const ArtistProfile = () => {
 
   const { currentArtist } = useMusicData();
 
-  const rows = chunkIntoRows(currentArtist.songs, MAX_ROWS);
+  const rows = chunkIntoRows(currentArtist.songs!, MAX_ROWS);
 
   const image = { uri: String(currentArtist.image) };
-
-  const getYear = (date: string) => {
-    const year = new Date(date).getFullYear();
-
-    return year;
-  };
 
   const singles = currentArtist?.songs?.filter((song) => song.albumId === null);
 
@@ -129,11 +124,14 @@ const ArtistProfile = () => {
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex flex-col gap-4 mx-7">
-                  {rows.map((row, rowIndex) => (
-                    <View key={rowIndex} className="flex flex-row gap-4">
-                      {row.map((item: SongData, colIndex: number) => (
+                  {rows?.map((row, rowIndex) => (
+                    <View
+                      key={rowIndex}
+                      className="flex flex-row gap-4"
+                    >
+                      {row?.map((item: SongData, colIndex: number) => (
                         <TouchableOpacity key={`${rowIndex}-${colIndex}`}>
-                          <View className="w-[320px] flex flex-row items-center justify-between py-3">
+                          <View className="max-w-[320px] flex flex-row items-center justify-between py-3">
                             <View className="flex flex-row items-center">
                               {item.coverImage ? (
                                 <View className="w-14 h-14 rounded-md">
@@ -151,12 +149,12 @@ const ArtistProfile = () => {
                                 <View className="w-14 h-14 bg-gray-600 rounded-md" />
                               )}
                               <View className="flex flex-col gap-1 ml-5">
-                                <Text className="text-white font-semibold">
+                                <Text className="text-white font-semibold truncate w-64" numberOfLines={1}>
                                   {item.title}
                                 </Text>
                                 <View className="flex flex-row gap-3">
                                   <Text className="text-gray-300">
-                                    {item.artist?.name}
+                                    <Text>{item.artist?.name}</Text>
                                     <Entypo
                                       name="dot-single"
                                       size={18}
@@ -188,7 +186,7 @@ const ArtistProfile = () => {
                 </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {currentArtist.albums.map((album, idx) => (
+                  {currentArtist?.albums?.map((album, idx) => (
                     <View key={idx} className="mr-4 mt-5">
                       <View className="h-40 w-40 rounded-md bg-white/30">
                         {typeof album.coverImage === "string" ? (
@@ -227,36 +225,35 @@ const ArtistProfile = () => {
                   </Text>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {singles?.map((song, idx) => (
-                      <View key={idx} className="mr-4 mt-5">
-                        <View className="h-40 w-40 rounded-md bg-white/30">
-                          {typeof song.coverImage === "string" ? (
-                            <Image
-                              source={
-                                typeof song.coverImage === "string"
-                                  ? { uri: song.coverImage }
-                                  : song.coverImage
-                              }
-                              alt="image"
-                              width={25}
-                              height={25}
-                              className="w-full h-full rounded-md"
-                            />
-                          ) : (
-                            <View className="h-40 w-40 rounded-md bg-white/30" />
-                          )}
-                        </View>
-
-                        <Text className="text-white text-lg font-semibold mt-2">
-                          {song.title}
-                        </Text>
-                        <Text className="text-gray-400">
-                          {song.releaseDate &&
-                            getYear(String(song.releaseDate))}
-                        </Text>
+                  {singles?.map((song, idx) => (
+                    <View key={idx} className="mr-4 mt-5 w-40">
+                      <View className="h-40 w-40 rounded-md bg-white/30">
+                        {typeof song.coverImage === "string" ? (
+                          <Image
+                            source={
+                              typeof song.coverImage === "string"
+                                ? { uri: song.coverImage }
+                                : song.coverImage
+                            }
+                            alt="image"
+                            width={25}
+                            height={25}
+                            className="w-full h-full rounded-md"
+                          />
+                        ) : (
+                          <View className="h-40 w-40 rounded-md bg-white/30" />
+                        )}
                       </View>
-                    ))}
-                  </ScrollView>
+
+                      <Text className="text-white text-lg font-semibold mt-2">
+                        {song.title}
+                      </Text>
+                      <Text className="text-gray-400">
+                        {song.releaseDate && getYear(String(song.releaseDate))}
+                      </Text>
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
             </View>
           </ScrollView>
