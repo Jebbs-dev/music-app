@@ -20,7 +20,8 @@ import { Link } from "expo-router";
 
 const HomePage = () => {
   const { playerView, setPlayerView } = useMusicView();
-  const { data, albumsData, artistsData, setCurrentArtist } = useMusicData();
+  const { data, albumsData, artistsData, setCurrentArtist, setCurrentAlbum } =
+    useMusicData();
 
   const filteredAlbums = albumsData.filter(
     (album) => album.artistId === artistsData[1]?.id
@@ -126,7 +127,6 @@ const HomePage = () => {
                   <Link
                     href="/artist-profile"
                     onPress={() => {
-                      console.log("well pressed");
                       setCurrentArtist(artistsData[1]);
                     }}
                   >
@@ -138,23 +138,30 @@ const HomePage = () => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {filteredAlbums.map((album, idx) => (
                 <View key={idx} className="mr-4">
-                  <View className="h-40 w-40 rounded-md bg-white/30">
-                    {typeof album.coverImage === "string" ? (
-                      <Image
-                        source={
-                          typeof album.coverImage === "string"
-                            ? { uri: album.coverImage }
-                            : album.coverImage
-                        }
-                        alt="image"
-                        width={25}
-                        height={25}
-                        className="w-full h-full rounded-md"
-                      />
-                    ) : (
-                      <View className="h-40 w-40 rounded-md bg-white/30" />
-                    )}
-                  </View>
+                  <Link
+                    href="/album-songs"
+                    onPress={() => {
+                      setCurrentAlbum(album);
+                    }}
+                  >
+                    <View className="h-40 w-40 rounded-md bg-white/30">
+                      {typeof album.coverImage === "string" ? (
+                        <Image
+                          source={
+                            typeof album.coverImage === "string"
+                              ? { uri: album.coverImage }
+                              : album.coverImage
+                          }
+                          alt="image"
+                          width={25}
+                          height={25}
+                          className="w-full h-full rounded-md"
+                        />
+                      ) : (
+                        <View className="h-40 w-40 rounded-md bg-white/30" />
+                      )}
+                    </View>
+                  </Link>
 
                   <Text className="text-white text-lg font-semibold mt-2">
                     {album.title}
