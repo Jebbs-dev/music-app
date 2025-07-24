@@ -20,11 +20,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useMusicView } from "@/store/music-view";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { SongData } from "@/modules/music/types/types";
+import { Artist, SongData } from "@/modules/music/types/types";
+import { Link } from "expo-router";
 
 const Playing = () => {
-  const { setSelectedSong, data } = useMusicData();
-  
+  const { setSelectedSong, data, setCurrentArtist } = useMusicData();
+
   const {
     isPlaying,
     setIsPlaying,
@@ -50,7 +51,7 @@ const Playing = () => {
   } = useMusicView();
 
   const currentSong: SongData = data[currentSongIndex];
-  const audioSource = currentSong.url;
+  const audioSource = currentSong?.url;
   const player = useAudioPlayer(audioSource);
   const status = useAudioPlayerStatus(player);
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -206,12 +207,12 @@ const Playing = () => {
           }}
         />
       </View>
-      <View className="items-center mt-10 border-2  rounded-lg border-[#2a2d2fcd] shadow-inner shadow-gray-700 mx-auto h-[300px] w-[350px]">
+      <View className="items-center mt-10 border-2 rounded-lg border-[#2a2d2fcd] shadow-inner shadow-gray-700 mx-auto h-[300px] w-[350px]">
         <Image
           source={
-            typeof currentSong.coverImage === "string"
-              ? { uri: currentSong.coverImage }
-              : currentSong.coverImage
+            typeof currentSong?.coverImage === "string"
+              ? { uri: currentSong?.coverImage }
+              : currentSong?.coverImage
           }
           alt="image"
           width={250}
@@ -223,9 +224,16 @@ const Playing = () => {
         <Text className="text-center text-4xl text-white">
           {currentSong.title}
         </Text>
-        <Text className="text-center text-sm text-gray-400 font-semibold mt-1">
-          {currentSong.artist?.name}
-        </Text>
+        <Link
+          href="/artist-profile"
+          onPress={() => {
+            setCurrentArtist((currentSong?.artist as Artist));
+          }}
+        >
+          <Text className="text-center text-sm text-gray-400 font-semibold mt-1">
+            {currentSong?.artist?.name}
+          </Text>
+        </Link>
       </View>
       <View className="mt-10 px-7 mb-4">
         <Slider
