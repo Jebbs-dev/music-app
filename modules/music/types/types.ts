@@ -30,6 +30,7 @@ export type Album = {
   createdAt?: string;
   updatedAt?: string;
   artist?: Artist;
+  songs?: SongData[];
 };
 
 export type SongData = {
@@ -45,5 +46,5 @@ export type SongData = {
   createdAt?: string;
   updatedAt?: string;
   artist: Artist;
-  album?: Album;
+  albums?: Album[];
 };
