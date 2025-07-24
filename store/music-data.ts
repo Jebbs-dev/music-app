@@ -1,7 +1,6 @@
 import { Album, Artist, SongData } from "@/modules/music/types/types";
 import { create } from "zustand";
 
-
 interface MusicDataState {
   selectedTab: "list" | "playing";
   setSelectedTab: (tab: "list" | "playing") => void;
@@ -21,6 +20,8 @@ interface MusicDataState {
   setSelectedSong: (song: SongData) => void;
   currentArtist: Artist;
   setCurrentArtist: (artist: Artist) => void;
+  currentAlbum: Album;
+  setCurrentAlbum: (album: Album) => void;
 }
 
 export const useMusicData = create<MusicDataState>((set, get) => ({
@@ -41,9 +42,33 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
   selectedSong: {
     id: "",
     title: "",
-    artist: { id: "", name: "" },
+    artist: {
+      id: "",
+      name: "",
+      email: "string",
+      description: "",
+      image: "",
+      status: "ACTIVE",
+      createdAt: "",
+      updatedAt: "",
+      albums: [],
+      songs: [],
+    },
     coverImage: "",
     url: "",
+    album: {
+      id: "",
+      title: "",
+      coverImage: "",
+      artist: {
+        id: "",
+        name: "",
+        description: "",
+        image: "",
+      },
+      releaseDate: "",
+      songs: [],
+    },
   },
   setSelectedSong: (song) => set({ selectedSong: song }),
   currentArtist: {
@@ -59,6 +84,21 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
     songs: [],
   },
   setCurrentArtist: (artist) => set({ currentArtist: artist }),
+
+  currentAlbum: {
+    id: "",
+    title: "",
+    coverImage: "",
+    artist: {
+      id: "",
+      name: "",
+      description: "",
+      image: "",
+    },
+    releaseDate: "",
+    songs: [],
+  },
+  setCurrentAlbum: (album) => set({ currentAlbum: album }),
 }));
 
 // export function useMusicDataQuery(take = 10) {
