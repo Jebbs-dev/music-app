@@ -46,13 +46,15 @@ const Explore = () => {
       >
         <SafeAreaView>
           <View className="h-full">
-            <Text className="text-white text-4xl">Explore</Text>
+            <View className="h-full flex items-center justify-center ">
+              <Text className="text-white text-4xl">Explore</Text>  
+            </View>
+            
             {playerView === "minimized" && (
               <TouchableOpacity
                 activeOpacity={0.9}
                 onPress={() => {
-                  setPlayerView("full")
-                  
+                  setPlayerView("full");
                 }}
                 className="w-full absolute bottom-0"
                 style={[{ transform: [{ translateY }] }]}
