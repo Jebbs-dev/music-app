@@ -34,6 +34,7 @@ export type Album = {
 };
 
 export type SongData = {
+  [x: string]: any;
   id: string;
   title: string;
   artistId?: string;
