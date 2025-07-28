@@ -24,13 +24,16 @@ import { Artist, SongData } from "@/modules/music/types/types";
 import { Link } from "expo-router";
 
 const Playing = () => {
-  const { setSelectedSong, data, setCurrentArtist } = useMusicData();
+  const { selectedSong, setSelectedSong, data, setCurrentArtist } =
+    useMusicData();
 
   const {
     isPlaying,
     setIsPlaying,
     currentSongIndex,
     setCurrentSongIndex,
+    currentSong,
+    setCurrentSong,
     position,
     setPosition,
     duration,
@@ -50,7 +53,7 @@ const Playing = () => {
     setMusicViewOption,
   } = useMusicView();
 
-  const currentSong: SongData = data[currentSongIndex];
+  // const currentSong: SongData = data[currentSongIndex];
   const audioSource = currentSong?.url;
   const player = useAudioPlayer(audioSource);
   const status = useAudioPlayerStatus(player);
@@ -91,7 +94,11 @@ const Playing = () => {
       stopProgressTracking();
     }
 
-    if (data[currentSongIndex]) {
+    if (!currentSong) {
+      setCurrentSong(data[currentSongIndex]);
+    }
+
+    if (!selectedSong) {
       setSelectedSong(data[currentSongIndex]);
     }
 
@@ -227,7 +234,7 @@ const Playing = () => {
         <Link
           href="/artist-profile"
           onPress={() => {
-            setCurrentArtist((currentSong?.artist as Artist));
+            setCurrentArtist(currentSong?.artist as Artist);
           }}
         >
           <Text className="text-center text-sm text-gray-400 font-semibold mt-1">
