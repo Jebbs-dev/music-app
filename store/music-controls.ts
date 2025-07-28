@@ -1,3 +1,4 @@
+import { SongData } from "@/modules/music/types/types";
 import { create } from "zustand";
 
 interface MusicControlsState {
@@ -7,6 +8,8 @@ interface MusicControlsState {
   setSound: (sound: any) => void;
   currentSongIndex: number;
   setCurrentSongIndex: (index: number) => void;
+  currentSong: SongData; // Optional current song
+  setCurrentSong: (song: SongData) => void;
   position: number;
   setPosition: (position: number) => void;
   duration: number;
@@ -26,6 +29,8 @@ export const useMusicControls = create<MusicControlsState>((set) => ({
   setSound: (sound) => set({ sound }),
   currentSongIndex: 0,
   setCurrentSongIndex: (index) => set({ currentSongIndex: index }),
+  currentSong: {} as SongData, // Initialize with an empty object
+  setCurrentSong: (song) => set({ currentSong: song }),
   position: 0,
   setPosition: (position) => set({ position }),
   duration: 0,
