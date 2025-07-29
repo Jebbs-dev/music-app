@@ -17,7 +17,7 @@ const PlayingMini = ({
   backgroundColor,
 }: PlayerMiniProps) => {
   const { data, selectedSong } = useMusicData();
-  const { isPlaying, setIsPlaying } = useMusicControls();
+  const { player, isPlaying, setIsPlaying } = useMusicControls();
 
   return (
     <>
@@ -47,25 +47,26 @@ const PlayingMini = ({
             <Text className="text-white font-semibold">
               {selectedSong && selectedSong.title}
             </Text>
-            <Text className="text-gray-300">{selectedSong && selectedSong.artist?.name}</Text>
+            <Text className="text-gray-300">
+              {selectedSong && selectedSong.artist?.name}
+            </Text>
           </View>
         </View>
         <View className="mr-3">
-          {isPlaying ? (
-            <FontAwesome
-              name="pause"
-              size={18}
-              color="white"
-              onPress={() => setIsPlaying(false)}
-            />
-          ) : (
-            <FontAwesome
-              name="play"
-              size={18}
-              color="white"
-              onPress={() => setIsPlaying(true)}
-            />
-          )}
+          <FontAwesome
+            name={isPlaying ? "pause" : "play"}
+            size={18}
+            color="white"
+            onPress={() => {
+              if (isPlaying) {
+                player?.pause();
+                setIsPlaying(false);
+              } else {
+                player?.play();
+                setIsPlaying(true);
+              }
+            }}
+          />
         </View>
       </View>
     </>
