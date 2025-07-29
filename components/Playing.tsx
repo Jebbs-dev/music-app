@@ -1,27 +1,24 @@
-import { MusicType } from "@/modules/music/types/music";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { formatTime } from "@/utils/time-format";
 // import Slider from "@react-native-community/slider";
 import { Slider } from "react-native-awesome-slider";
-import { useSharedValue, withTiming } from "react-native-reanimated";
 
+import { Artist } from "@/modules/music/types/types";
+import { useMusicView } from "@/store/music-view";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
-  setAudioModeAsync,
-  useAudioPlayer,
-  useAudioPlayerStatus,
+  createAudioPlayer,
+  setAudioModeAsync
 } from "expo-audio";
-import React, { useEffect, useRef } from "react";
+import { Link } from "expo-router";
+import React, { useEffect } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useSharedValue } from "react-native-reanimated";
 import NeumorphicButton from "./neumorphic-button";
 import RoundedButton from "./rounded-button";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
-import { useMusicView } from "@/store/music-view";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Artist, SongData } from "@/modules/music/types/types";
-import { Link } from "expo-router";
 
 const Playing = () => {
   const { selectedSong, setSelectedSong, data, setCurrentArtist } =
@@ -43,6 +40,10 @@ const Playing = () => {
     repeatMode,
     setRepeatMode,
     setIsPlayerMenuOpen,
+    setPlayer,
+    player, // <-- get the global player instance
+    lastPlayedSongUrl,
+    setLastPlayedSongUrl,
   } = useMusicControls();
 
   const {
@@ -53,19 +54,16 @@ const Playing = () => {
     setMusicViewOption,
   } = useMusicView();
 
-  // const currentSong: SongData = data[currentSongIndex];
-  const audioSource = currentSong?.url;
-  const player = useAudioPlayer(audioSource);
-  const status = useAudioPlayerStatus(player);
-  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Only create the player once, and set it in Zustand if not already set
+  React.useEffect(() => {
+    if (!player) {
+      const newPlayer = createAudioPlayer();
+      setPlayer(newPlayer);
+    }
+  }, [player, setPlayer]);
 
-  // Shared values for the slider
-  const progress = useSharedValue(0);
-  const minimumValue = useSharedValue(0);
-  const maximumValue = useSharedValue(1);
-
+  // Set audio mode once
   useEffect(() => {
-    // Configure audio mode once
     const configureAudio = async () => {
       try {
         await setAudioModeAsync({
@@ -77,78 +75,82 @@ const Playing = () => {
       }
     };
     configureAudio();
-
-    // Cleanup on unmount
     return () => {
-      stopProgressTracking();
+      // stopProgressTracking(); // This function is no longer defined
     };
   }, []);
 
+  // Add this ref to track the previous song URL
+  // const prevSongUrl = useRef<string | undefined>(undefined); // This ref is no longer needed
+
+  // When currentSong changes, replace the audio source
   useEffect(() => {
-    // Handle play/pause and song change
+    if (
+      player &&
+      currentSong?.url &&
+      lastPlayedSongUrl !== currentSong.url
+    ) {
+      player.replace(currentSong.url);
+      setPosition(0);
+      setDuration(0);
+      setLastPlayedSongUrl(currentSong.url); // update the global value
+    }
+  }, [player, currentSong]);
+
+  // Play/pause effect
+  useEffect(() => {
+    if (!player) return;
     if (isPlaying) {
       player.play();
-      // startProgressTracking();
     } else {
       player.pause();
-      stopProgressTracking();
+      // stopProgressTracking(); // This function is no longer defined
     }
-
     if (!currentSong) {
       setCurrentSong(data[currentSongIndex]);
     }
-
     if (!selectedSong) {
       setSelectedSong(data[currentSongIndex]);
     }
-
-    // Reset position/duration on song change
-    setPosition(0);
-    setDuration(0);
   }, [isPlaying, currentSongIndex, player]);
 
+  // Remove the effect that references player.status
+  // Add polling for position and duration
   useEffect(() => {
-    // Handle status updates (duration, position, completion)
-    if (status.isLoaded) {
-      if (status.duration) setDuration(status.duration);
-      if (status.currentTime) setPosition(status.currentTime);
-      if (status.didJustFinish) {
-        if (repeatMode === "one") {
-          player.seekTo(0);
-          player.play();
-        } else if (repeatMode === "all") {
-          handleNext();
-        } else {
-          setIsPlaying(false);
-          handleNext();
-          setTimeout(() => setIsPlaying(true), 100);
-        }
-      }
-    }
-  }, [status, repeatMode]);
+    if (!player) return;
+    const interval = setInterval(() => {
+      // These properties may exist on the player instance
+      const currentTime = typeof player.currentTime === 'number' && !isNaN(player.currentTime) ? player.currentTime : 0;
+      const duration = typeof player.duration === 'number' && !isNaN(player.duration) ? player.duration : 0;
+      setPosition(currentTime);
+      setDuration(duration);
+      // Optionally, handle end of track logic if player.didJustFinish is available
+    }, 500); // Poll every 500ms
+    return () => clearInterval(interval);
+  }, [player]);
 
+  // Remove progress, maximumValue, and progressInterval if not essential
+  // If you need slider progress, use local state or Zustand
+  const progress = useSharedValue(position);
+  const minimumValue = useSharedValue(0);
+  const maximumValue = useSharedValue(duration || 1);
+  // const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Remove or comment out the effect that used progress and maximumValue
   useEffect(() => {
-    // Update shared values for slider
-    progress.value = withTiming(position, { duration: 1000 });
-    maximumValue.value = withTiming(duration || 1, { duration: 1000 });
+    progress.value = position;
+    maximumValue.value = duration || 1;
   }, [position, duration]);
 
-  // const startProgressTracking = () => {
-  //   // Progress is now handled by useAudioPlayerStatus hook
-  //   // No need for manual interval tracking
-  // };
-
-  const stopProgressTracking = () => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
-  };
+  // Remove stopProgressTracking if not used elsewhere
+  // function stopProgressTracking() {}
 
   const handleSeek = async (value: number) => {
     try {
-      await player.seekTo(value);
-      setPosition(value);
+      if (player) {
+        await player.seekTo(value);
+        setPosition(value);
+      }
     } catch (error) {
       console.log("Error seeking:", error);
     }
@@ -334,7 +336,7 @@ const Playing = () => {
           <RoundedButton
             iconType="others"
             otherIcon={MaterialIcons}
-            icon="repeat-one"
+            icon="repeat"
             onPress={() => {
               console.log("Repeat Button Pressed");
               handleRepeat();
