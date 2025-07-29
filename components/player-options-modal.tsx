@@ -119,7 +119,7 @@ const PlayerOptionsModal = () => {
         <GestureDetector gesture={gesture}>
           <Animated.View
             style={[
-              { height: '100%', marginTop: 20, backgroundColor: '#374151', borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+              { height: '100%', marginTop: 20, backgroundColor: '#3c3c3c', borderTopLeftRadius: 16, borderTopRightRadius: 16 },
               animatedStyle,
             ]}
           >
