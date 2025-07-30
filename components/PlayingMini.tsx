@@ -27,7 +27,7 @@ const PlayingMini = ({
         ${background === "default" ? "bg-neutral-800 " : backgroundColor}
           `}
       >
-        <View className="flex flex-row items-center">
+        <View className="flex flex-row items-center w-[80%]">
           <View className="w-14 h-14">
             {selectedSong && (
               <Image
