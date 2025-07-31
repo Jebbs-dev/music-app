@@ -1,28 +1,34 @@
+import { useDebounce } from "@/hooks/use-debounce";
+import { useFetchAlbums } from "@/modules/music/queries/albums/fetch-albums";
+import { useFetchArtists } from "@/modules/music/queries/artists/fetch-artists";
+import { useFetchSongs } from "@/modules/music/queries/songs/fetch-songs";
+import { Album, Artist, SongData } from "@/modules/music/types/types";
+import { useMusicData } from "@/store/music-data";
+import { getYear } from "@/utils/time-format";
+import Entypo from "@expo/vector-icons/Entypo";
+import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, router } from "expo-router";
+import { useRef, useState } from "react";
 import {
-  View,
+  FlatList,
+  Image,
+  Keyboard,
+  SafeAreaView,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
-  FlatList,
-  ScrollView,
-  Image,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Feather from "@expo/vector-icons/Feather";
-import { Link, router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
-import { useMusicData } from "@/store/music-data";
-import { useFetchSongs } from "@/modules/music/queries/fetch-songs";
-import { useFetchAlbums } from "@/modules/music/queries/fetch-albums";
-import { useFetchArtists } from "@/modules/music/queries/fetch-artists";
-import { Artist } from "@/modules/music/types/types";
-import { useDebounce } from "@/hooks/use-debounce";
+
+type SearchResult =
+  | (SongData & { type: "SongData" })
+  | (Album & { type: "Album" })
+  | (Artist & { type: "Artist" });
 
 const SearchOverlay = () => {
   const isPresented = router.canGoBack();
@@ -56,13 +62,24 @@ const SearchOverlay = () => {
   const flattenedArtists = searchedArtists?.pages.flat();
   const flattenedAlbums = searchedAlbums?.pages.flat();
 
-  const allSearchedData = [
-    ...(flattenedSongs ?? []),
-    ...(flattenedArtists ?? []),
-    ...(flattenedAlbums ?? []),
+  const allSearchedData: SearchResult[] = [
+    ...(flattenedSongs?.map((song) => ({
+      ...song,
+      type: "SongData" as const,
+    })) ?? []),
+    ...(flattenedArtists?.map((artist) => ({
+      ...artist,
+      type: "Artist" as const,
+    })) ?? []),
+    ...(flattenedAlbums?.map((album) => ({
+      ...album,
+      type: "Album" as const,
+    })) ?? []),
   ];
 
-  const searchDataToBeDisplayed = allSearchedData.slice(0, 5);
+  const searchDataToBeDisplayed: SearchResult[] = allSearchedData.slice(0, 5);
+
+  // const searchDataToBeDisplayed: Album[] | Artist[] | SongData[] = allSearchedData.slice(0, 5);
 
   return (
     <LinearGradient
@@ -152,20 +169,30 @@ const SearchOverlay = () => {
             ) : (
               <FlatList
                 data={searchDataToBeDisplayed}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => {
+                  if (item.type === "SongData")
+                    return `song-${item.id ?? index}`;
+                  if (item.type === "Album") return `album-${item.id ?? index}`;
+                  if (item.type === "Artist")
+                    return `artist-${item.id ?? index}`;
+                  return index.toString();
+                }}
                 renderItem={({ item }) => (
                   <TouchableOpacity>
                     <View
-                      className={`w-full h-20 flex flex-row items-center justify-between p-3 
-            `}
+                      className={`w-full h-20 flex flex-row items-center justify-between p-3`}
                     >
                       <View className="flex flex-row items-center">
                         <View className="w-14 h-14">
                           <Image
                             source={
-                              typeof item?.coverImage === "string"
-                                ? { uri: item.coverImage }
-                                : item.coverImage
+                              item.type === "Artist"
+                                ? typeof item.image === "string"
+                                  ? { uri: item.image }
+                                  : item.image
+                                : typeof item.coverImage === "string"
+                                  ? { uri: item.coverImage }
+                                  : item.coverImage
                             }
                             alt="image"
                             width={25}
@@ -173,37 +200,59 @@ const SearchOverlay = () => {
                             className="w-full h-full"
                           />
                         </View>
-                        {}
                         <View className="flex flex-col gap-1 ml-5">
-                          <Text className="text-white font-semibold">
-                            {item.title}
+                          <Text className="text-white font-semibold w-[95%]">
+                            {item.type === "Artist" ? item.name : item.title}
                           </Text>
-                          <View className="flex flex-row gap-3">
+                          <View className="flex flex-row gap-1">
                             <Text className="text-gray-300">
-                              {item.type === "Album"
-                                ? "Album"
+                              {item.type === "Artist"
+                                ? "Artist"
                                 : item.type === "SongData"
                                   ? "Song"
-                                  : item.type === "Artist"
-                                    ? "Artist"
+                                  : item.type === "Album"
+                                    ? "Album"
                                     : "Unknown"}
                             </Text>
-                            <Text>
+                            <Entypo
+                              name="dot-single"
+                              size={13}
+                              color="white"
+                              className="top-0.5"
+                            />
+                            <Text className="text-gray-300">
                               {item.type === "Album"
-                                ? item?.artist.name
+                                ? item.artist?.name
                                 : item.type === "SongData"
-                                  ? item?.artist.name
+                                  ? item.artist?.name
                                   : item.type === "Artist"
                                     ? item.name
+                                    : "Unknown"}
+                            </Text>
+                            <Entypo
+                              name="dot-single"
+                              size={13}
+                              color="white"
+                              className="top-0.5"
+                            />
+
+                            <Text className="text-gray-300">
+                              {item.type === "Album"
+                                ? getYear(String(item.releaseDate))
+                                : item.type === "SongData"
+                                  ? getYear(String(item.releaseDate))
+                                  : item.type === "Artist"
+                                    ? ""
                                     : "Unknown"}
                             </Text>
                           </View>
                         </View>
                       </View>
-                      <View className="mr-3">
-                        <MaterialCommunityIcons
-                          name="drag-horizontal-variant"
-                          size={24}
+                      <View className="">
+                        <Entypo
+                          name="dots-three-vertical"
+                          size={12}
+                          className="mr-2"
                           color="white"
                         />
                       </View>
