@@ -1,9 +1,9 @@
 import PlayerOptionsModal from "@/components/player-options-modal";
 import Playing from "@/components/Playing";
 import MusicOptions from "@/modules/music/components/music-options";
-import { useFetchAlbums } from "@/modules/music/queries/fetch-albums";
-import { useFetchArtists } from "@/modules/music/queries/fetch-artists";
-import { useFetchSongs } from "@/modules/music/queries/fetch-songs";
+import { useFetchAlbums } from "@/modules/music/queries/albums/fetch-albums";
+import { useFetchArtists } from "@/modules/music/queries/artists/fetch-artists";
+import { useFetchSongs } from "@/modules/music/queries/songs/fetch-songs";
 import { useMusicControls } from "@/store/music-controls";
 // import {  useMusicDataQuery } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
