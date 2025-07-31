@@ -1,5 +1,6 @@
 import PlayingMini from "@/components/PlayingMini";
 import { SongData } from "@/modules/music/types/types";
+import useAuthStore from "@/store/auth-store";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
@@ -24,15 +25,24 @@ import {
 } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 
-
 const HomePage = () => {
-const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
 
+  const { logout } = useAuthStore();
 
   const { playerView, setPlayerView } = useMusicView();
-  const { isPlaying, setIsPlaying, currentSong, setCurrentSong} = useMusicControls();
-  const { data, setMusicData, albumsData, artistsData, setCurrentArtist, setCurrentAlbum, selectedSong, setSelectedSong } =
-    useMusicData();
+  const { isPlaying, setIsPlaying, currentSong, setCurrentSong } =
+    useMusicControls();
+  const {
+    data,
+    setMusicData,
+    albumsData,
+    artistsData,
+    setCurrentArtist,
+    setCurrentAlbum,
+    selectedSong,
+    setSelectedSong,
+  } = useMusicData();
 
   const filteredAlbums = albumsData.filter(
     (album) => album.artistId === artistsData[1]?.id
@@ -108,7 +118,8 @@ const { width: screenWidth } = useWindowDimensions();
               <Link href="/search-modal">
                 <Ionicons name="search-outline" size={24} color="white" />
               </Link>
-              <TouchableOpacity>
+
+              <TouchableOpacity onPress={logout}>
                 <FontAwesome name="circle" size={24} color="gray" />
               </TouchableOpacity>
             </View>
