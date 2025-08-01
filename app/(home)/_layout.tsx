@@ -17,9 +17,15 @@ import {
   Dimensions,
   SafeAreaView,
   StatusBar,
-  Text,
-  View,
+  TouchableOpacity,
+  View
 } from "react-native";
+
+import PlayingMini from "@/components/PlayingMini";
+import Fontisto from '@expo/vector-icons/Fontisto';
+import ArtistProfile from "../../components/artist-profile";
+import SearchOverlay from "../../components/search-modal";
+import AlbumSongs from "../album-songs";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -28,8 +34,15 @@ const HomeLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const { playerView, overlayView } =
-    useMusicView();
+  const {
+    playerView,
+    setPlayerView,
+    overlayView,
+    artistModalVisible,
+    searchModalVisible,
+    albumModalVisible,
+  } = useMusicView();
+
   const { isPlayerMenuOpen } = useMusicControls();
 
   const take = 100; // Default number of songs to fetch
@@ -47,6 +60,9 @@ const HomeLayout = ({
   const loadingStates = iSSongsLoading && isAlbumsLoading && isArtistsLoading;
 
   const animatedValue = useRef(new Animated.Value(0)).current; // 0: minimized, 1: full
+  const searchModalOpacity = useRef(new Animated.Value(0)).current;
+  const artistModalOpacity = useRef(new Animated.Value(0)).current;
+  const albumModalOpacity = useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     Animated.timing(animatedValue, {
@@ -55,6 +71,30 @@ const HomeLayout = ({
       useNativeDriver: true,
     }).start();
   }, [playerView]);
+
+  React.useEffect(() => {
+    Animated.timing(searchModalOpacity, {
+      toValue: searchModalVisible ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [searchModalVisible]);
+
+  React.useEffect(() => {
+    Animated.timing(artistModalOpacity, {
+      toValue: artistModalVisible ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [artistModalVisible]);
+  
+  React.useEffect(() => {
+    Animated.timing(albumModalOpacity, {
+      toValue: albumModalVisible ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [albumModalVisible]);
 
   const translateY = animatedValue.interpolate({
     inputRange: [0, 1],
@@ -66,7 +106,8 @@ const HomeLayout = ({
     <>
       {loadingStates && (
         <View className="absolute z-50 top-0 left-0 right-0 bottom-0 bg-black/80 items-center justify-center">
-          <Text className="text-white text-lg">Loading music...</Text>
+          {/* <Text className="text-white text-lg">Loading music...</Text> */}
+          <Fontisto name="spinner" size={30} color="white" className="animate-spin" />
         </View>
       )}
       <Tabs
@@ -75,6 +116,7 @@ const HomeLayout = ({
           tabBarBackground: () => (
             <View style={{ flex: 1, backgroundColor: "#262626" }} />
           ),
+          tabBarStyle: { zIndex: 999, elevation: 8 },
         }}
       >
         <Tabs.Screen
@@ -108,11 +150,62 @@ const HomeLayout = ({
           }}
         />
       </Tabs>
+
+      {/* Mini Player positioned above tab bar */}
+      {playerView === "minimized" && (
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => {
+            setPlayerView("full");
+          }}
+          className="w-full absolute bottom-0 z-[999]"
+          // style={[{ transform: [{ translateY }] }]}
+        >
+          <PlayingMini position="bottom" background="default" />
+        </TouchableOpacity>
+      )}
+
+      {/* Search Modal Overlay */}
+      {searchModalVisible && (
+        <Animated.View
+          className="absolute top-0 left-0 right-0 bottom-0 z-50"
+          style={{ opacity: searchModalOpacity }}
+          pointerEvents="box-none"
+        >
+          <SearchOverlay />
+        </Animated.View>
+      )}
+
+      {/* Artist Profile Overlay */}
+      {artistModalVisible && (
+        <Animated.View
+          className="absolute top-0 left-0 right-0 bottom-0 z-30"
+          style={{ opacity: artistModalOpacity }}
+          pointerEvents="box-none"
+        >
+          <ArtistProfile />
+        </Animated.View>
+      )}
+
+      {albumModalVisible && (
+        <Animated.View
+          className="absolute top-0 left-0 right-0 bottom-0 z-40"
+          style={{ opacity: albumModalOpacity }}
+          pointerEvents="box-none"
+        >
+          <AlbumSongs />
+        </Animated.View>
+      )}
+
       {/* Global Overlay Player with Tailwind styles */}
       {playerView === "full" && (
         <Animated.View
           className="absolute left-0 right-0 bottom-0 z-50 w-full h-full justify-end bg-black"
-          style={{ transform: [{ translateY }], height: SCREEN_HEIGHT }}
+          style={{
+            transform: [{ translateY }],
+            height: SCREEN_HEIGHT,
+            zIndex: 9999,
+          }}
           pointerEvents="box-none"
         >
           <SafeAreaView className="flex-1">
