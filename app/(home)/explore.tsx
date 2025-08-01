@@ -59,7 +59,6 @@ const Explore = () => {
                 className="w-full absolute bottom-0"
                 style={[{ transform: [{ translateY }] }]}
               >
-                <PlayingMini position="bottom" background="default" />
               </TouchableOpacity>
             )}
           </View>
