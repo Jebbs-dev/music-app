@@ -1,17 +1,18 @@
-import { User } from "@/modules/music/types/types";
+import { Artist, User } from "@/modules/music/types/types";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface AuthData {
   access_token: string;
   refresh_token: string;
+  userInfo: Partial<User | Artist>; // Optional user info
 }
 
 interface AuthState {
   isLoggedIn: boolean;
-  user: User | null;
+  user: Partial<User | Artist> | null;
   accessToken: string | null;
   refreshToken: string | null;
 }
@@ -20,6 +21,8 @@ interface AuthActions {
   login: (authData: AuthData, user?: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
+  authView: "login" | "signup";
+  setAuthView: (view: "login" | "signup") => void;
   // updateTokens: (accessToken: string, refreshToken: string) => void;
 }
 
@@ -71,6 +74,34 @@ export async function getStorageItemAsync(key: string): Promise<string | null> {
   }
 }
 
+// Custom storage implementation for Zustand persist middleware
+const createCustomStorage = () => {
+  return {
+    getItem: async (name: string): Promise<string | null> => {
+      try {
+        return await getStorageItem(name);
+      } catch (error) {
+        console.error('Error getting item from storage:', error);
+        return null;
+      }
+    },
+    setItem: async (name: string, value: string): Promise<void> => {
+      try {
+        await setStorageItem(name, value);
+      } catch (error) {
+        console.error('Error setting item in storage:', error);
+      }
+    },
+    removeItem: async (name: string): Promise<void> => {
+      try {
+        await setStorageItem(name, null);
+      } catch (error) {
+        console.error('Error removing item from storage:', error);
+      }
+    },
+  };
+};
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -79,12 +110,12 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: null,
       refreshToken: null,
 
-      login: (authData: AuthData, user?: User) => {
+      login: (authData: AuthData,) => {
         set({ 
           isLoggedIn: true,
           accessToken: authData.access_token,
           refreshToken: authData.refresh_token,
-          user: user || null
+          user: authData.userInfo || null
         });
       },
 
@@ -101,8 +132,12 @@ export const useAuthStore = create<AuthStore>()(
         setStorageItem("user", null);
       },
 
-      setUser: (user: User) => {
+      setUser: (user: Partial<User | Artist>) => {
         set({ user });
+      },
+      authView: "login",
+      setAuthView: (view: "login" | "signup") => {
+        set({ authView: view });
       },
 
       // updateTokens: (accessToken: string, refreshToken: string) => {
@@ -113,7 +148,8 @@ export const useAuthStore = create<AuthStore>()(
       // },
     }),
     {
-      name: "jebbs-auth-storage",
+      name: "auth-storage",
+      storage: createJSONStorage(() => createCustomStorage()),
       partialize: (state) => ({
         isLoggedIn: state.isLoggedIn,
         user: state.user,
