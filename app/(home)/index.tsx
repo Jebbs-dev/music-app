@@ -1,4 +1,3 @@
-import PlayingMini from "@/components/PlayingMini";
 import { SongData } from "@/modules/music/types/types";
 import useAuthStore from "@/store/auth-store";
 import { useMusicControls } from "@/store/music-controls";
@@ -12,9 +11,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
@@ -28,11 +26,19 @@ import { PanGestureHandler, State } from "react-native-gesture-handler";
 const HomePage = () => {
   const { width: screenWidth } = useWindowDimensions();
 
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
 
-  const { playerView, setPlayerView } = useMusicView();
+  const {
+    playerView,
+    setPlayerView,
+    setArtistModalVisible,
+    setSearchModalVisible,
+    setAlbumModalVisible,
+  } = useMusicView();
+
   const { isPlaying, setIsPlaying, currentSong, setCurrentSong } =
     useMusicControls();
+
   const {
     data,
     setMusicData,
@@ -68,11 +74,17 @@ const HomePage = () => {
 
   const speedDialSongs = data.slice(0, 27);
 
-  const quickPicks = getRandomSongsWithVariedArtists(data, 20);
+  // Use useMemo to ensure quickPicks only loads once when data is available
+  const quickPicks = useMemo(() => {
+    if (data.length === 0) return [];
+    return getRandomSongsWithVariedArtists(data, 20);
+  }, [data.length]); // Only regenerate if data length changes (initial load)
 
   const MAX_ROWS = 5;
 
-  const rows = chunkIntoRows(quickPicks, MAX_ROWS);
+  const rows = useMemo(() => {
+    return chunkIntoRows(quickPicks, MAX_ROWS);
+  }, [quickPicks]);
 
   // const items = Array.from({ length: 27 }, (_, i) => i + 1);
   const start = page * 9;
@@ -93,6 +105,8 @@ const HomePage = () => {
       }
     }
   };
+
+  console.log(user);
 
   return (
     <>
@@ -115,9 +129,9 @@ const HomePage = () => {
                   color="white"
                 />
               </TouchableOpacity>
-              <Link href="/search-modal">
+              <TouchableOpacity onPress={() => setSearchModalVisible(true)}>
                 <Ionicons name="search-outline" size={24} color="white" />
-              </Link>
+              </TouchableOpacity>
 
               <TouchableOpacity onPress={logout}>
                 <FontAwesome name="circle" size={24} color="gray" />
@@ -308,28 +322,29 @@ const HomePage = () => {
                   </Text>
                 </View>
                 <View>
-                  <TouchableOpacity>
-                    <Link
+                  <TouchableOpacity
+                    onPress={() => {
+                      setArtistModalVisible(true);
+                      setCurrentArtist(artistsData[1]);
+                    }}
+                  >
+                    {/* <Link
                       href="/artist-profile"
                       onPress={() => {
                         setCurrentArtist(artistsData[1]);
                       }}
-                    >
-                      <Entypo
-                        name="chevron-thin-right"
-                        size={15}
-                        color="white"
-                      />
-                    </Link>
+                    > */}
+                    <Entypo name="chevron-thin-right" size={15} color="white" />
+                    {/* </Link> */}
                   </TouchableOpacity>
                 </View>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {filteredAlbums.map((album, idx) => (
                   <View key={idx} className="mr-4">
-                    <Link
-                      href="/album-songs"
+                    <TouchableOpacity
                       onPress={() => {
+                        setAlbumModalVisible(true);
                         setCurrentAlbum(album);
                       }}
                     >
@@ -350,7 +365,7 @@ const HomePage = () => {
                           <View className="h-40 w-40 rounded-md bg-white/30" />
                         )}
                       </View>
-                    </Link>
+                    </TouchableOpacity>
 
                     <Text className="text-white text-lg font-semibold mt-2 w-40">
                       {album.title}
@@ -373,9 +388,7 @@ const HomePage = () => {
               }}
               className="w-full absolute bottom-0"
               // style={[{ transform: [{ translateY }] }]}
-            >
-              <PlayingMini position="bottom" background="default" />
-            </TouchableOpacity>
+            ></TouchableOpacity>
           )}
         </SafeAreaView>
       </LinearGradient>
