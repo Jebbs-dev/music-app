@@ -17,11 +17,12 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useMusicData } from "@/store/music-data";
 import { getYear } from "@/utils/time-format";
+import { useMusicView } from "@/store/music-view";
 
 const AlbumSongs = () => {
-  const isPresented = router.canGoBack();
-
   const { currentAlbum } = useMusicData();
+
+  const { setSearchModalVisible, setAlbumModalVisible } = useMusicView();
 
   return (
     <LinearGradient
@@ -32,28 +33,42 @@ const AlbumSongs = () => {
     >
       <SafeAreaView className="h-full mx-7">
         <View className="flex flex-row justify-between mt-5">
-          {isPresented && (
-            <TouchableOpacity>
-              <Link href="../">
-                <Entypo name="chevron-thin-left" size={18} color="#fff" />
-              </Link>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity onPress={() => setAlbumModalVisible(false)}>
+            <Entypo name="chevron-thin-left" size={18} color="#fff" />
+          </TouchableOpacity>
 
           <View className="flex flex-col gap-1 items-center">
-            <Text className="text-xs text-white">
-              {" "}
-              {currentAlbum.artist?.name}
-            </Text>
+            <View className="flex flex-row items-center gap-2">
+              <View className="items-center rounded-full w-4 h-4">
+                <Image
+                  source={
+                    typeof currentAlbum.artist?.image === "string"
+                      ? { uri: currentAlbum.artist?.image }
+                      : currentAlbum.artist?.image
+                  }
+                  alt="image"
+                  width={20}
+                  height={20}
+                  className="w-full h-full rounded-full"
+                />
+              </View>
+              <Text className="text-xs text-white">
+                {" "}
+                {currentAlbum.artist?.name}
+              </Text>
+            </View>
             <Text className="text-xs text-white">
               {currentAlbum.title} .{" "}
               {getYear(String(currentAlbum.releaseDate))}{" "}
             </Text>
           </View>
 
-          <Link href="/search-modal" className="hover:bg-transparent">
+          <TouchableOpacity
+            onPress={() => setSearchModalVisible(true)}
+            className="hover:bg-transparent"
+          >
             <Ionicons name="search-outline" size={18} color="white" />
-          </Link>
+          </TouchableOpacity>
         </View>
 
         <View className="mt-5">
