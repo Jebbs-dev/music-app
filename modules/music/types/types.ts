@@ -49,3 +49,16 @@ export type SongData = {
   artist: Artist;
   albums?: Album[];
 };
+
+export type Playlist = {
+  id: string;
+  name: string;
+  coverImage?: string;
+  userId: string;
+  libraryId: string;
+  songs?: SongData[];
+  albums?: Album[];
+  isPublic: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
