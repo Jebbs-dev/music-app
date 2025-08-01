@@ -1,9 +1,8 @@
-import { View, Text, SafeAreaView, Image } from "react-native";
-import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import React from "react";
+import { Image, Text, View } from "react-native";
 
 interface PlayerMiniProps {
   position: "bottom" | "top";
@@ -22,8 +21,8 @@ const PlayingMini = ({
   return (
     <>
       <View
-        className={`z-30 w-full h-20 flex flex-row items-center justify-between px-3 
-        ${position === "bottom" ? "absolute bottom-0 " : ""}
+        className={`z-[9999] w-full h-20 flex flex-row items-center justify-between px-3 
+        ${position === "bottom" ? "absolute bottom-[83px]" : ""}
         ${background === "default" ? "bg-neutral-800 " : backgroundColor}
           `}
       >
