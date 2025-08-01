@@ -1,6 +1,7 @@
 import useAuthStore, { setStorageItem } from "@/store/auth-store";
 import api from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Artist, User } from "../types/types";
 
 interface UserAuth {
   email: string;
@@ -10,7 +11,7 @@ interface UserAuth {
 interface LoginResponse {
   access_token: string;
   refresh_token: string;
-  user?: any; // Add user data if your backend returns it
+  userInfo:  Partial<User | Artist> ; // Add user data if your backend returns it
 }
 
 export const useLoginUser = () => {
@@ -26,13 +27,13 @@ export const useLoginUser = () => {
     onSuccess: (data: LoginResponse) => {
       if (data) {
         // Store auth data in the store
-        login(data, data.user);
+        login(data);
 
         // Also store in secure storage for persistence
         setStorageItem("access_token", data.access_token);
         setStorageItem("refresh_token", data.refresh_token);
-        if (data.user) {
-          setStorageItem("user", JSON.stringify(data.user));
+        if (data.userInfo) {
+          setStorageItem("user", JSON.stringify(data.userInfo));
         }
       }
     },
