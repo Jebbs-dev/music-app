@@ -1,5 +1,5 @@
 import { useMusicData } from "@/store/music-data";
-import { API_URL } from "@/utils/api";
+import api from "@/utils/api";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect } from "react";
@@ -16,7 +16,7 @@ export const useFetchAlbums = (filters: FetchAlbumsFilters = { take: 10 }) => {
   const query = useInfiniteQuery({
     queryKey: ["albums", filters],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await axios.get(`${API_URL}/albums`, {
+      const response = await api.get(`/albums`, {
         params: {
           skip: pageParam,
           take: filters.take,

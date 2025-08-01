@@ -4,7 +4,7 @@ import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { SongData } from "../../types/types";
 import { useEffect } from "react";
-import { API_URL } from "@/utils/api";
+import api from "@/utils/api";
 
 type FetchSongsFilters = {
   search?: string;
@@ -19,7 +19,7 @@ export function useFetchSongs(filters: FetchSongsFilters = { take: 10 }) {
   const query = useInfiniteQuery({
     queryKey: ["songs", filters],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await axios.get(`${API_URL}/songs`, {
+      const response = await api.get(`/songs`, {
         params: { skip: pageParam, take: filters.take, search: filters.search },
       });
       return response.data.songs as SongData[];
