@@ -5,6 +5,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import "../global.css";
 import useAuthStore from "@/store/auth-store";
+import { SplashScreenController } from './splash';
+
 
 export default function RootLayout() {
   const { isLoggedIn } = useAuthStore();
@@ -20,6 +22,7 @@ export default function RootLayout() {
 
   return (
     <QueryProvider>
+      <SplashScreenController/>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack>
           <Stack.Protected guard={isLoggedIn}>
@@ -31,33 +34,11 @@ export default function RootLayout() {
 
           <Stack.Protected guard={!isLoggedIn}>
             <Stack.Screen
-              name="login"
+              name="auth"
               options={{
                 presentation: "fullScreenModal",
                 headerShown: false,
                 animation: "fade",
-              }}
-            />
-          </Stack.Protected>
-
-          <Stack.Protected guard={isLoggedIn}>
-            <Stack.Screen
-              name="search-modal"
-              options={{
-                presentation: "fullScreenModal",
-                headerShown: false,
-                animation: "fade",
-              }}
-            />
-          </Stack.Protected>
-
-          <Stack.Protected guard={isLoggedIn}>
-            <Stack.Screen
-              name="artist-profile"
-              options={{
-                presentation: "fullScreenModal",
-                headerShown: false,
-                animation: "slide_from_left",
               }}
             />
           </Stack.Protected>
