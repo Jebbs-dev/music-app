@@ -21,7 +21,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import GridView from "@/modules/library/components/grid-view";
 
 const Library = () => {
-  const { playerView, setPlayerView } = useMusicView();
+  const { setSearchModalVisible } = useMusicView();
   const { libraryDataView, setLibraryDataView } = useLibraryView();
 
   const libraryCategories = [
@@ -53,9 +53,9 @@ const Library = () => {
                   color="white"
                 />
               </TouchableOpacity>
-              <Link href="/search-modal">
+              <TouchableOpacity onPress={() => setSearchModalVisible(true)}>
                 <Ionicons name="search-outline" size={24} color="white" />
-              </Link>
+              </TouchableOpacity>
               <TouchableOpacity>
                 <FontAwesome name="circle" size={30} color="gray" />
               </TouchableOpacity>
@@ -110,19 +110,6 @@ const Library = () => {
           <View className="mt-5 mx-4">
             {libraryDataView === "gridView" ? <ListView /> : <GridView />}
           </View>
-
-          {playerView === "minimized" && (
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => {
-                setPlayerView("full");
-              }}
-              className="w-full absolute bottom-0"
-              // style={[{ transform: [{ translateY }] }]}
-            >
-              <PlayingMini position="bottom" background="default" />
-            </TouchableOpacity>
-          )}
         </SafeAreaView>
       </LinearGradient>
     </>
