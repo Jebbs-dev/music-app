@@ -1,4 +1,5 @@
 import PlayerOptionsModal from "@/components/player-options-modal";
+import SaveToPlaylistModal from "@/components/save-to-playlist-modal";
 import Playing from "@/components/Playing";
 import MusicOptions from "@/modules/music/components/music-options";
 import { useFetchAlbums } from "@/modules/music/queries/albums/fetch-albums";
@@ -18,14 +19,15 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import PlayingMini from "@/components/PlayingMini";
-import Fontisto from '@expo/vector-icons/Fontisto';
+import Fontisto from "@expo/vector-icons/Fontisto";
 import ArtistProfile from "../../components/artist-profile";
 import SearchOverlay from "../../components/search-modal";
 import AlbumSongs from "../album-songs";
+import CreatePlaylistModal from "@/components/create-playlist-modal";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -43,7 +45,7 @@ const HomeLayout = ({
     albumModalVisible,
   } = useMusicView();
 
-  const { isPlayerMenuOpen } = useMusicControls();
+  const { isPlayerMenuOpen, isPlaylistMenuOpen, isPlaylistCreateModalOpen } = useMusicControls();
 
   const take = 100; // Default number of songs to fetch
 
@@ -87,7 +89,7 @@ const HomeLayout = ({
       useNativeDriver: true,
     }).start();
   }, [artistModalVisible]);
-  
+
   React.useEffect(() => {
     Animated.timing(albumModalOpacity, {
       toValue: albumModalVisible ? 1 : 0,
@@ -107,7 +109,12 @@ const HomeLayout = ({
       {loadingStates && (
         <View className="absolute z-50 top-0 left-0 right-0 bottom-0 bg-black/80 items-center justify-center">
           {/* <Text className="text-white text-lg">Loading music...</Text> */}
-          <Fontisto name="spinner" size={30} color="white" className="animate-spin" />
+          <Fontisto
+            name="spinner"
+            size={30}
+            color="white"
+            className="animate-spin"
+          />
         </View>
       )}
       <Tabs
@@ -208,15 +215,19 @@ const HomeLayout = ({
           }}
           pointerEvents="box-none"
         >
-          <SafeAreaView className="flex-1">
-            <View className="flex-1 h-full">
-              {/* Minimize button at the top */}
-              {overlayView === "player" ? <Playing /> : <MusicOptions />}
-              {overlayView === "player" && isPlayerMenuOpen && (
-                <PlayerOptionsModal />
-              )}
-            </View>
-          </SafeAreaView>
+          <View className="flex-1 h-full">
+            {/* Minimize button at the top */}
+            {overlayView === "player" ? <Playing /> : <MusicOptions />}
+            {overlayView === "player" && isPlayerMenuOpen && (
+              <PlayerOptionsModal />
+            )}
+            {overlayView === "player" && isPlaylistMenuOpen && (
+              <SaveToPlaylistModal />
+            )}
+            {overlayView === "player" && isPlaylistCreateModalOpen && (
+              <CreatePlaylistModal />
+            )}
+          </View>
         </Animated.View>
       )}
       <StatusBar barStyle="light-content" />
