@@ -23,8 +23,12 @@ interface MusicControlsState {
   setIsShuffleOn: (shuffle: boolean) => void;
   repeatMode: "none" | "one" | "all";
   setRepeatMode: (mode: "none" | "one" | "all") => void;
-  isPlayerMenuOpen?: boolean;
-  setIsPlayerMenuOpen?: (isOpen: boolean) => void;
+  isPlayerMenuOpen: boolean;
+  setIsPlayerMenuOpen: (isOpen: boolean) => void;
+  isPlaylistMenuOpen: boolean;
+  setIsPlaylistMenuOpen: (isOpen: boolean) => void;
+  isPlaylistCreateModalOpen: boolean;
+  setIsPlaylistCreateModalOpen: (isOpen: boolean) => void;
 }
 
 export const useMusicControls = create<MusicControlsState>((set) => ({
@@ -50,4 +54,9 @@ export const useMusicControls = create<MusicControlsState>((set) => ({
   setRepeatMode: (mode) => set({ repeatMode: mode }),
   isPlayerMenuOpen: false,
   setIsPlayerMenuOpen: (isOpen) => set({ isPlayerMenuOpen: isOpen }),
+  isPlaylistMenuOpen: false,
+  setIsPlaylistMenuOpen: (isOpen) => set({ isPlaylistMenuOpen: isOpen }),
+  isPlaylistCreateModalOpen: false,
+  setIsPlaylistCreateModalOpen: (isOpen) =>
+    set({ isPlaylistCreateModalOpen: isOpen }),
 }));
