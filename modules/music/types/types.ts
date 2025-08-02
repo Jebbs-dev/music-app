@@ -62,3 +62,13 @@ export type Playlist = {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type Library = {
+  id: string;
+  userId: string;
+  playlists?: Playlist[];
+  albums?: Album[];
+  songs?: SongData[];
+  createdAt?: string;
+  updatedAt?: string;
+}
