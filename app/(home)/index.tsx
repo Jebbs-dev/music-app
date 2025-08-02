@@ -106,8 +106,6 @@ const HomePage = () => {
     }
   };
 
-  console.log(user);
-
   return (
     <>
       <LinearGradient
