@@ -42,9 +42,9 @@ const AlbumSongs = () => {
               <View className="items-center rounded-full w-4 h-4">
                 <Image
                   source={
-                    typeof currentAlbum.artist?.image === "string"
+                    typeof currentAlbum?.artist?.image === "string"
                       ? { uri: currentAlbum.artist?.image }
-                      : currentAlbum.artist?.image
+                      : currentAlbum?.artist?.image
                   }
                   alt="image"
                   width={20}
@@ -54,12 +54,12 @@ const AlbumSongs = () => {
               </View>
               <Text className="text-xs text-white">
                 {" "}
-                {currentAlbum.artist?.name}
+                {currentAlbum?.artist?.name}
               </Text>
             </View>
             <Text className="text-xs text-white">
-              {currentAlbum.title} .{" "}
-              {getYear(String(currentAlbum.releaseDate))}{" "}
+              {currentAlbum?.title} .{" "}
+              {getYear(String(currentAlbum?.releaseDate))}{" "}
             </Text>
           </View>
 
@@ -75,9 +75,9 @@ const AlbumSongs = () => {
           <View className="items-center rounded-md mx-auto w-[250px] h-[250px]">
             <Image
               source={
-                typeof currentAlbum.coverImage === "string"
+                typeof currentAlbum?.coverImage === "string"
                   ? { uri: currentAlbum.coverImage }
-                  : currentAlbum.coverImage
+                  : currentAlbum?.coverImage
               }
               alt="image"
               width={250}
@@ -88,7 +88,7 @@ const AlbumSongs = () => {
 
           <View className="mt-3">
             <Text className="text-center text-3xl text-white font-bold">
-              {currentAlbum.title}
+              {currentAlbum?.title}
             </Text>
           </View>
 
@@ -135,7 +135,7 @@ const AlbumSongs = () => {
           </View>
 
           <View className="mt-5">
-            {currentAlbum.songs?.map((song, index) => (
+            {currentAlbum?.songs?.map((song, index) => (
               <View
                 key={index}
                 className="flex flex-row items-center justify-between"

@@ -26,12 +26,12 @@ const ArtistProfile = () => {
 
   const { currentArtist } = useMusicData();
 
-  const { artistModalVisible, setArtistModalVisible, setSearchModalVisible } =
+  const { setArtistModalVisible, setSearchModalVisible } =
     useMusicView();
 
-  const rows = chunkIntoRows(currentArtist.songs || [], MAX_ROWS);
+  const rows = chunkIntoRows(currentArtist?.songs || [], MAX_ROWS);
 
-  const image = { uri: String(currentArtist.image) };
+  const image = { uri: String(currentArtist?.image) };
 
   const singles = currentArtist?.songs?.filter((song) => song.albumId === null);
 
@@ -91,10 +91,10 @@ const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="mt-48 mx-7 ">
                 <Text className="text-4xl font-bold text-white ">
-                  {currentArtist.name}
+                  {currentArtist?.name}
                 </Text>
                 <Text className="text-sm text-white mt-2" numberOfLines={1}>
-                  {currentArtist.description}
+                  {currentArtist?.description}
                 </Text>
               </View>
 
