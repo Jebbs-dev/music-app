@@ -1,4 +1,4 @@
-import { Album, Artist, SongData } from "@/modules/music/types/types";
+import { Album, Artist, Library, SongData } from "@/modules/music/types/types";
 import { create } from "zustand";
 
 interface MusicDataState {
@@ -16,12 +16,14 @@ interface MusicDataState {
   // hasNextPage: boolean;
   // isFetchingNextPage: boolean;
   // Additional state for selected song
-  selectedSong: SongData;
+  selectedSong: SongData | null;
   setSelectedSong: (song: SongData) => void;
-  currentArtist: Artist;
+  currentArtist: Artist | null;
   setCurrentArtist: (artist: Artist) => void;
-  currentAlbum: Album;
+  currentAlbum: Album | null;
   setCurrentAlbum: (album: Album) => void;
+  libraryData: Library | null;
+  setLibraryData: (library: Library) => void;
 }
 
 export const useMusicData = create<MusicDataState>((set, get) => ({
@@ -39,66 +41,14 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
   setAlbumsData: (data) => {
     set({ albumsData: data });
   },
-  selectedSong: {
-    id: "",
-    title: "",
-    artist: {
-      id: "",
-      name: "",
-      email: "string",
-      description: "",
-      image: "",
-      status: "ACTIVE",
-      createdAt: "",
-      updatedAt: "",
-      albums: [],
-      songs: [],
-    },
-    coverImage: "",
-    url: "",
-    album: {
-      id: "",
-      title: "",
-      coverImage: "",
-      artist: {
-        id: "",
-        name: "",
-        description: "",
-        image: "",
-      },
-      releaseDate: "",
-      songs: [],
-    },
-  },
+  selectedSong: null as SongData | null,
   setSelectedSong: (song) => set({ selectedSong: song }),
-  currentArtist: {
-    id: "",
-    name: "",
-    email: "string",
-    description: "",
-    image: "",
-    status: "ACTIVE",
-    createdAt: "",
-    updatedAt: "",
-    albums: [],
-    songs: [],
-  },
+  currentArtist: null as Artist | null,
   setCurrentArtist: (artist) => set({ currentArtist: artist }),
-
-  currentAlbum: {
-    id: "",
-    title: "",
-    coverImage: "",
-    artist: {
-      id: "",
-      name: "",
-      description: "",
-      image: "",
-    },
-    releaseDate: "",
-    songs: [],
-  },
+  currentAlbum: null as Album | null,
   setCurrentAlbum: (album) => set({ currentAlbum: album }),
+  libraryData: null as Library | null,
+  setLibraryData: (library) => set({ libraryData: library }),
 }));
 
 // export function useMusicDataQuery(take = 10) {
