@@ -1,3 +1,4 @@
+import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React from "react";
@@ -6,7 +7,9 @@ import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 const UpNext = () => {
   const { data, selectedSong, setSelectedSong } = useMusicData();
 
-  const slicedData = data.slice(0, 5); 
+  const { setCurrentSong, setIsPlaying } = useMusicControls();
+
+  const slicedData = data.slice(0, 5);
 
   return (
     <View className="h-full">
@@ -14,7 +17,13 @@ const UpNext = () => {
         data={slicedData}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setSelectedSong(item)}>
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedSong(item);
+              setCurrentSong(item);
+              setIsPlaying(true);
+            }}
+          >
             <View
               className={`w-full h-20 flex flex-row items-center justify-between p-3 
             ${selectedSong?.id === item.id ? "bg-neutral-800/50" : ""}`}
