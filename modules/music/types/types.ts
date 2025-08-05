@@ -69,6 +69,7 @@ export type Library = {
   playlists?: Playlist[];
   albums?: Album[];
   songs?: SongData[];
+  artists?:  Artist[];
   createdAt?: string;
   updatedAt?: string;
 }
