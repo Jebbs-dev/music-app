@@ -28,6 +28,8 @@ import ArtistProfile from "../../components/artist-profile";
 import SearchOverlay from "../../components/search-modal";
 import AlbumSongs from "../album-songs";
 import CreatePlaylistModal from "@/components/create-playlist-modal";
+import { useFetchLibrary } from "@/modules/library/queries/fetch-library";
+import useAuthStore from "@/store/auth-store";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -45,7 +47,10 @@ const HomeLayout = ({
     albumModalVisible,
   } = useMusicView();
 
-  const { isPlayerMenuOpen, isPlaylistMenuOpen, isPlaylistCreateModalOpen } = useMusicControls();
+  const { user } = useAuthStore();
+
+  const { isPlayerMenuOpen, isPlaylistMenuOpen, isPlaylistCreateModalOpen } =
+    useMusicControls();
 
   const take = 100; // Default number of songs to fetch
 
@@ -59,7 +64,9 @@ const HomeLayout = ({
     take,
   });
 
-  const loadingStates = iSSongsLoading && isAlbumsLoading && isArtistsLoading;
+  const { isLoading: isLibraryLoading } = useFetchLibrary(String(user?.id));
+
+  const loadingStates = iSSongsLoading && isAlbumsLoading && isArtistsLoading && isLibraryLoading;
 
   const animatedValue = useRef(new Animated.Value(0)).current; // 0: minimized, 1: full
   const searchModalOpacity = useRef(new Animated.Value(0)).current;
