@@ -15,8 +15,7 @@ const PlayingMini = ({
   background,
   backgroundColor,
 }: PlayerMiniProps) => {
-  const { data, selectedSong } = useMusicData();
-  const { player, isPlaying, setIsPlaying } = useMusicControls();
+  const { player, isPlaying, setIsPlaying, currentSong } = useMusicControls();
 
   return (
     <>
@@ -28,12 +27,12 @@ const PlayingMini = ({
       >
         <View className="flex flex-row items-center w-[80%]">
           <View className="w-14 h-14">
-            {selectedSong && (
+            {currentSong && (
               <Image
                 source={
-                  typeof selectedSong.coverImage === "string"
-                    ? { uri: selectedSong.coverImage }
-                    : selectedSong.coverImage
+                  typeof currentSong.coverImage === "string"
+                    ? { uri: currentSong.coverImage }
+                    : currentSong.coverImage
                 }
                 alt="image"
                 width={25}
@@ -44,10 +43,10 @@ const PlayingMini = ({
           </View>
           <View className="flex flex-col gap-1 ml-5">
             <Text className="text-white font-semibold">
-              {selectedSong && selectedSong.title}
+              {currentSong && currentSong.title}
             </Text>
             <Text className="text-gray-300">
-              {selectedSong && selectedSong.artist?.name}
+              {currentSong && currentSong.artist?.name}
             </Text>
           </View>
         </View>
