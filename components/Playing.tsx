@@ -28,6 +28,9 @@ import { useSharedValue } from "react-native-reanimated";
 import NeumorphicButton from "./neumorphic-button";
 import RoundedButton from "./rounded-button";
 import { LinearGradient } from "expo-linear-gradient";
+import { useAddSongToPlaylist } from "@/modules/library/mutations/add-song-to-playlist";
+import { useAddSongToLibrary } from "@/modules/library/mutations/add-song-to-library";
+import useAuthStore from "@/store/auth-store";
 
 const { width } = Dimensions.get("window");
 
@@ -67,6 +70,12 @@ const Playing = () => {
     setArtistModalVisible,
   } = useMusicView();
 
+  const { user } = useAuthStore();
+
+  const addSongToLibraryMutation = useAddSongToLibrary(
+    String(user?.id),
+    currentSong.id
+  );
   // Only create the player once, and set it in Zustand if not already set
   React.useEffect(() => {
     if (!player) {
@@ -172,6 +181,14 @@ const Playing = () => {
   // Remove stopProgressTracking if not used elsewhere
   // function stopProgressTracking() {}
 
+  const handleAddSongToLibrary = async () => {
+    try {
+      await addSongToLibraryMutation.mutateAsync(currentSong);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
   const handleSeek = async (value: number) => {
     try {
       if (player) {
@@ -266,6 +283,7 @@ const Playing = () => {
             <Text
               // style={{ transform: [{ translateX }] }}
               className="text-center text-3xl font-semibold text-white"
+              numberOfLines={1}
             >
               {currentSong.title}
             </Text>
@@ -285,24 +303,27 @@ const Playing = () => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 16 }}
+              contentContainerStyle={{ gap: 16, zIndex: 999 }}
             >
-              <TouchableOpacity className="flex flex-row items-center bg-stone-800 px-6 py-2 gap-3 rounded-full">
-                <Feather name="thumbs-up" size={18} color="white" />
-                <Text className="text-white">2.3k</Text>
+              <TouchableOpacity
+                className="flex flex-row items-center bg-stone-800 px-6 py-3 gap-3 rounded-full"
+                onPress={handleAddSongToLibrary}
+              >
+                <Feather name="thumbs-up" size={20} color="white" />
+                <Text className="text-white font-semibold">2.3k</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="flex flex-row items-center bg-stone-800 px-6 py-2 gap-3 rounded-full"
+                className="flex flex-row items-center bg-stone-800 px-6 py-3 gap-3 rounded-full"
                 onPress={() => {
                   setIsPlaylistMenuOpen(true);
                 }}
               >
-                <MaterialIcons name="playlist-add" size={18} color="white" />
-                <Text className="text-white">Save</Text>
+                <MaterialIcons name="playlist-add" size={20} color="white" />
+                <Text className="text-white font-semibold">Save</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex flex-row items-center bg-stone-800 px-6 py-2 gap-3 rounded-full">
-                <Octicons name="download" size={18} color="white" />
-                <Text className="text-white">Download</Text>
+              <TouchableOpacity className="flex flex-row items-center bg-stone-800 px-6 py-3 gap-3 rounded-full">
+                <Octicons name="download" size={20} color="white" />
+                <Text className="text-white font-semibold">Download</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
