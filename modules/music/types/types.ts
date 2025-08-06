@@ -9,6 +9,7 @@ export type User = {
 };
 
 export type Artist = {
+  [x: string]: any;
   id: string;
   name: string;
   email?: string;
@@ -22,6 +23,7 @@ export type Artist = {
 };
 
 export type Album = {
+  [x: string]: any;
   id: string;
   title: string;
   artistId?: string;
@@ -54,6 +56,7 @@ export type Playlist = {
   id: string;
   name: string;
   coverImage?: string;
+  description?: string;
   userId: string;
   libraryId: string;
   songs?: SongData[];
@@ -61,7 +64,7 @@ export type Playlist = {
   isPublic: boolean;
   createdAt?: string;
   updatedAt?: string;
-}
+};
 
 export type Library = {
   id: string;
@@ -69,7 +72,7 @@ export type Library = {
   playlists?: Playlist[];
   albums?: Album[];
   songs?: SongData[];
-  artists?:  Artist[];
+  artists?: Artist[];
   createdAt?: string;
   updatedAt?: string;
-}
+};
