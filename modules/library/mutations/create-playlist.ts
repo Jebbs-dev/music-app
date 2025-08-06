@@ -17,25 +17,5 @@ export const useCreatePlaylist = () => {
       const response = await api.post(`playlists`, playlist);
       return response.data;
     },
-    onSuccess: (data) => {
-      Alert.alert("", "Saved to Library!", [
-        {
-          text: "Library",
-          onPress: () => router.push(`/(home)/library`),
-          style: "default",
-        },
-      ]);
-    },
-    onError: (error: any) => {
-      Alert.alert(
-        "Failed to create playlist",
-        error?.response?.data?.message ||
-          "An error occurred during this action. Please try again.",
-        [],
-        {
-          cancelable: true,
-        }
-      );
-    },
   });
 };
