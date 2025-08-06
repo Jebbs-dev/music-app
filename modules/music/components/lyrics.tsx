@@ -1,28 +1,34 @@
-import { View, Text, ScrollView } from "react-native";
+import { useMusicControls } from "@/store/music-controls";
 import React from "react";
-import { useMusicData } from "@/store/music-data";
+import { ScrollView, Text, View } from "react-native";
 
 const Lyrics = () => {
-  const { selectedSong } = useMusicData();
+  const { currentSong } = useMusicControls();
 
-  const formattedLyrics = selectedSong?.lyrics
+  const formattedLyrics = currentSong?.lyrics
     .replace(/^"|"$/g, "") // remove leading/trailing quotes
     .replace(/\\n/g, "\n") // replace escaped newlines with real line breaks
     .replace(/\\"/g, '"'); // unescape quotes if needed
 
   return (
     <View className="h-full">
-      <ScrollView showsVerticalScrollIndicator={false} className="mb-40">
-        <Text
-          style={{
-            fontFamily: "serif",
-            lineHeight: 22,
-          }}
-          className="whitespace-pre-wrap text-white mt-8 mx-4 overflow-auto"
-        >
-          {formattedLyrics || "No lyrics available for this song."}
-        </Text>
-      </ScrollView>
+      {formattedLyrics && formattedLyrics.trim() ? (
+        <ScrollView showsVerticalScrollIndicator={false} className="mb-40">
+          <Text
+            style={{
+              fontFamily: "serif",
+              lineHeight: 22,
+            }}
+            className="whitespace-pre-wrap text-white mt-8 mx-4 overflow-auto"
+          >
+            {formattedLyrics}
+          </Text>
+        </ScrollView>
+      ) : (
+        <View className="flex flex-1 items-center justify-center">
+          <Text>No lyrics available for this song.</Text>
+        </View>
+      )}
     </View>
   );
 };
