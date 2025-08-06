@@ -5,8 +5,8 @@ interface MusicViewState {
   setDynamicColor: (color: string) => void;
   playerView: "full" | "minimized";
   setPlayerView: (view: "full" | "minimized") => void;
-  overlayView: "player" | "options";
-  setOverlayView: (view: "player" | "options") => void;
+  overlayView: "options" | "none";
+  setOverlayView: (view: "options" | "none") => void;
   musicViewOption: "up next" | "lyrics" | "related";
   setMusicViewOption: (viewOption: "up next" | "lyrics" | "related") => void;
   artistModalVisible: boolean;
@@ -22,7 +22,7 @@ export const useMusicView = create<MusicViewState>((set) => ({
   setDynamicColor: (color) => set({ dynamicColor: color }),
   playerView: "minimized",
   setPlayerView: (view) => set({ playerView: view }),
-  overlayView: "player",
+  overlayView: "options",
   setOverlayView: (view) => set({ overlayView: view }),
   musicViewOption: "up next",
   setMusicViewOption: (viewOption) => set({ musicViewOption: viewOption }),
