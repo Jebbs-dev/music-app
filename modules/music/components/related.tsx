@@ -3,50 +3,14 @@ import { FlatList } from "react-native-gesture-handler";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useMusicData } from "@/store/music-data";
 import { useEffect, useState } from "react";
+import { useMusicControls } from "@/store/music-controls";
 
 const Related = () => {
-  const { selectedSong, setSelectedSong, data, setMusicData } = useMusicData();
+  const { selectedSong, setSelectedSong, data } = useMusicData();
 
-  // const takeNumber = 10;
-
-  // const {
-  //   data: songs,
-  //   isLoading,
-  //   isError,
-  //   fetchNextPage,
-  //   hasNextPage,
-  //   isFetchingNextPage,
-  // } = useFetchSongs({
-  //   take: takeNumber,
-  // });
-
-  // const allsongs = songs?.pages.flat() || [];
-
-  // if (allsongs) {
-  //   setMusicData([...allsongs]);
-  // }
+  const { setCurrentSong, setIsPlaying } = useMusicControls();
 
   const slicedSongs = data.slice(5);
-
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 items-center justify-center">
-  //       <Text className="text-white">Loading...</Text>
-  //     </View>
-  //   );
-  // }
-
-  // const interval = setInterval(() => {
-  //   if (hasNextPage && !isFetchingNextPage) {
-  //     fetchNextPage();
-  //   }
-  // }, 20000);
-
-  // if(!hasNextPage){
-  //   clearInterval(interval);
-  // }
-
-  // Auto-load next page after 20 seconds if not at end
 
   return (
     <View className="h-full">
@@ -54,7 +18,13 @@ const Related = () => {
         data={slicedSongs}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setSelectedSong(item)}>
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedSong(item);
+              setCurrentSong(item);
+              setIsPlaying(true);
+            }}
+          >
             <View
               className={`w-full h-20 flex flex-row items-center justify-between p-3 
             ${selectedSong?.id === item.id ? "bg-neutral-800/50" : ""}`}
