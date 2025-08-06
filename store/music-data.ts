@@ -1,4 +1,10 @@
-import { Album, Artist, Library, SongData } from "@/modules/music/types/types";
+import {
+  Album,
+  Artist,
+  Library,
+  Playlist,
+  SongData,
+} from "@/modules/music/types/types";
 import { create } from "zustand";
 
 interface MusicDataState {
@@ -24,6 +30,14 @@ interface MusicDataState {
   setCurrentAlbum: (album: Album) => void;
   libraryData: Library | null;
   setLibraryData: (library: Library) => void;
+  librarySongs: SongData[];
+  setLibrarySongs: (songs: SongData[]) => void;
+  libraryAlbums: Album[];
+  setLibraryAlbums: (albums: Album[]) => void;
+  libraryArtists: Artist[];
+  setLibraryArtists: (artists: Artist[]) => void;
+  libraryPlaylists: Playlist[];
+  setLibraryPlaylists: (playlist: Playlist[]) => void;
 }
 
 export const useMusicData = create<MusicDataState>((set, get) => ({
@@ -49,6 +63,14 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
   setCurrentAlbum: (album) => set({ currentAlbum: album }),
   libraryData: null as Library | null,
   setLibraryData: (library) => set({ libraryData: library }),
+  librarySongs: [],
+  setLibrarySongs: (songs) => set({ librarySongs: songs }),
+  libraryAlbums: [],
+  setLibraryAlbums: (albums) => set({ libraryAlbums: albums }),
+  libraryArtists: [],
+  setLibraryArtists: (artists) => set({ libraryArtists: artists }),
+  libraryPlaylists: [],
+  setLibraryPlaylists: (playlists) => set({ libraryPlaylists: playlists }),
 }));
 
 // export function useMusicDataQuery(take = 10) {
