@@ -1,4 +1,7 @@
-import useAuthStore, { setStorageItem } from "@/store/auth-store";
+import useAuthStore, {
+  getStorageItem,
+  setStorageItem,
+} from "@/store/auth-store";
 import api from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Artist, User } from "../types/types";
@@ -11,7 +14,7 @@ interface UserAuth {
 interface LoginResponse {
   access_token: string;
   refresh_token: string;
-  userInfo:  Partial<User | Artist> ; // Add user data if your backend returns it
+  userInfo: Partial<User | Artist>; // Add user data if your backend returns it
 }
 
 export const useLoginUser = () => {
@@ -35,6 +38,7 @@ export const useLoginUser = () => {
         if (data.userInfo) {
           setStorageItem("user", JSON.stringify(data.userInfo));
         }
+
       }
     },
     onError: (error) => {
