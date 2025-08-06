@@ -3,6 +3,7 @@ import { useFetchAlbums } from "@/modules/music/queries/albums/fetch-albums";
 import { useFetchArtists } from "@/modules/music/queries/artists/fetch-artists";
 import { useFetchSongs } from "@/modules/music/queries/songs/fetch-songs";
 import { Album, Artist, SongData } from "@/modules/music/types/types";
+import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
 import { getYear } from "@/utils/time-format";
@@ -34,8 +35,16 @@ type SearchResult =
 const SearchOverlay = () => {
   const isPresented = router.canGoBack();
 
-  const { data, albumsData, artistsData } = useMusicData();
-  const { searchModalVisible, setSearchModalVisible } = useMusicView();
+  const { setIsPlaying, setCurrentSong } = useMusicControls();
+
+  const { data, setSelectedSong, setCurrentArtist, setCurrentAlbum } =
+    useMusicData();
+  const {
+    setSearchModalVisible,
+    setPlayerView,
+    setArtistModalVisible,
+    setAlbumModalVisible,
+  } = useMusicView();
 
   const searchInputRef = useRef(null);
   const [queryKey, setQueryKey] = useState("");
@@ -185,8 +194,22 @@ const SearchOverlay = () => {
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() => {
-                        // TODO: Handle item selection based on type
-                        console.log("Selected item:", item);
+                        if (item.type === "SongData") {
+                          setSelectedSong(item);
+                          setCurrentSong(item);
+                          setIsPlaying(true);
+                          setPlayerView("full");
+                        }
+
+                        if (item.type === "Artist") {
+                          setArtistModalVisible(true);
+                          setCurrentArtist(item);
+                        }
+
+                        if (item.type === "Album") {
+                          setAlbumModalVisible(true);
+                          setCurrentAlbum(item);
+                        }
                       }}
                     >
                       <View
