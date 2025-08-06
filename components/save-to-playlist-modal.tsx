@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React from "react";
 import { useMusicControls } from "@/store/music-controls";
@@ -16,10 +17,22 @@ import Animated, {
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useMusicData } from "@/store/music-data";
+import { useAddSongToPlaylist } from "@/modules/library/mutations/add-song-to-playlist";
+import { router } from "expo-router";
 
 const SaveToPlaylistModal = () => {
-  const { isPlaylistMenuOpen, isPlaylistCreateModalOpen, setIsPlaylistMenuOpen, setIsPlaylistCreateModalOpen } =
-    useMusicControls();
+  const {
+    isPlaylistMenuOpen,
+    setIsPlaylistMenuOpen,
+    setIsPlaylistCreateModalOpen,
+    currentSong,
+  } = useMusicControls();
+
+
+  const { libraryPlaylists } = useMusicData();
+
+  const addSongToPlaylistMutation = useAddSongToPlaylist(currentSong.id);
 
   const translateY = useSharedValue(0);
   const THRESHOLD = 120;
@@ -50,6 +63,33 @@ const SaveToPlaylistModal = () => {
       }
     });
 
+  const handleAddSongToPlaylist = async (playlistId: string) => {
+    try {
+      await addSongToPlaylistMutation.mutateAsync(playlistId);
+
+      Alert.alert("", "Saved to Playlist!", [
+        {
+          text: "Library",
+          onPress: () => {
+            router.push(`/(home)/library`)
+            closeModal();
+          },
+          style: "default",
+        },
+      ]);
+    } catch (error: any) {
+      Alert.alert(
+        "Failed to add song to playlist",
+        error?.response?.data?.message ||
+          "An error occurred during this action. Please try again.",
+        [],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -70,7 +110,7 @@ const SaveToPlaylistModal = () => {
           >
             <View className="flex flex-row items-center justify-between border-gray-300 border-b p-5">
               <Text className="font-semibold text-white">Save to playlist</Text>
-              <TouchableOpacity onPress={() => setIsPlaylistMenuOpen(false)}>
+              <TouchableOpacity onPress={closeModal}>
                 <AntDesign name="close" size={18} color="white" />
               </TouchableOpacity>
             </View>
@@ -79,7 +119,7 @@ const SaveToPlaylistModal = () => {
               <Text className="font-semibold text-white mb-3">Recent</Text>
               <View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {Array.from({ length: 5 }, (_, index) => (
+                  {libraryPlaylists.map((playlist, index) => (
                     <View key={index} className="mr-5">
                       <View className="flex flex-col">
                         <View className="flex flex-row w-20 h-10">
@@ -96,7 +136,7 @@ const SaveToPlaylistModal = () => {
                           className="text-xs text-white font-semibold truncate"
                           numberOfLines={1}
                         >
-                          Playlist name
+                          {playlist.name}
                         </Text>
                         <Text
                           className="text-xs text-gray-300 truncate"
@@ -116,44 +156,51 @@ const SaveToPlaylistModal = () => {
               </Text>
               <View>
                 <ScrollView>
-                  {Array.from({ length: 10 }, (_, index) => (
-                    <View
+                  {libraryPlaylists.map((playlist, index) => (
+                    <TouchableOpacity
                       key={index}
-                      className="flex flex-row mb-7 items-center gap-5"
+                      onPress={() => {
+                        handleAddSongToPlaylist(playlist.id);
+                      }}
                     >
-                      <View className="flex flex-col rounded-sm">
-                        <View className="flex flex-row w-14 h-7">
-                          <View className="w-1/2  bg-gray-300 rounded-tl-sm"></View>
-                          <View className="w-1/2 bg-orange-300 rounded-tr-sm"></View>
+                      <View className="flex flex-row mb-7 items-center gap-5">
+                        <View className="flex flex-col rounded-sm">
+                          <View className="flex flex-row w-14 h-7">
+                            <View className="w-1/2  bg-gray-300 rounded-tl-sm"></View>
+                            <View className="w-1/2 bg-orange-300 rounded-tr-sm"></View>
+                          </View>
+                          <View className="flex flex-row w-14 h-7">
+                            <View className="w-1/2  bg-blue-300 rounded-bl-sm"></View>
+                            <View className="w-1/2 bg-violet-300 rounded-br-sm"></View>
+                          </View>
                         </View>
-                        <View className="flex flex-row w-14 h-7">
-                          <View className="w-1/2  bg-blue-300 rounded-bl-sm"></View>
-                          <View className="w-1/2 bg-violet-300 rounded-br-sm"></View>
+                        <View className="mt-1 w-full">
+                          <Text
+                            className=" text-white font-semibold truncate"
+                            numberOfLines={1}
+                          >
+                            {playlist.name}
+                          </Text>
+                          <Text
+                            className="text-gray-300 truncate"
+                            numberOfLines={1}
+                          >
+                            20 tracks
+                          </Text>
                         </View>
                       </View>
-                      <View className="mt-1 w-full">
-                        <Text
-                          className=" text-white font-semibold truncate"
-                          numberOfLines={1}
-                        >
-                          Playlist name
-                        </Text>
-                        <Text
-                          className="text-gray-300 truncate"
-                          numberOfLines={1}
-                        >
-                          20 tracks
-                        </Text>
-                      </View>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
             </View>
-            <TouchableOpacity className="absolute bottom-20 right-5 flex flex-row items-center gap-2 px-4 py-3 bg-white rounded-full" onPress={() => {
-              setIsPlaylistMenuOpen(false);
-              setIsPlaylistCreateModalOpen(true);
-            }}>
+            <TouchableOpacity
+              className="absolute bottom-20 right-5 flex flex-row items-center gap-2 px-4 py-3 bg-white rounded-full"
+              onPress={() => {
+                closeModal();
+                setIsPlaylistCreateModalOpen(true);
+              }}
+            >
               <AntDesign name="plus" size={20} color="black" />
               <Text className="font-semibold ">New Playlist</Text>
             </TouchableOpacity>
