@@ -19,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { CustomTypescriptDropdown, DropdownOption } from "./custom-dropdown";
+import { router } from "expo-router";
 
 const CreatePlaylistModal = () => {
   const { isPlaylistCreateModalOpen, setIsPlaylistCreateModalOpen } =
@@ -98,9 +99,29 @@ const CreatePlaylistModal = () => {
       setSelectedValue("public");
       setErrors({});
       setIsPlaylistCreateModalOpen(false);
-    } catch (error) {
+
+      Alert.alert("Success", "Playlist created successfully!", [
+        {
+          text: "Go to Library",
+          onPress: () => router.push("/(home)/library"),
+          style: "default",
+        },
+        {
+          text: "Stay Here",
+          style: "cancel",
+        },
+      ]);
+    } catch (error: any) {
       // Error is handled by the mutation's onError callback
-      console.error("Error creating playlist:", error);
+      Alert.alert(
+        "Failed to create playlist",
+        error?.response?.data?.message ||
+          "An error occurred during this action. Please try again.",
+        [],
+        {
+          cancelable: true,
+        }
+      );
     }
   };
 
