@@ -42,6 +42,7 @@ const HomeLayout = ({
     playerView,
     setPlayerView,
     overlayView,
+    setOverlayView,
     artistModalVisible,
     searchModalVisible,
     albumModalVisible,
@@ -171,6 +172,7 @@ const HomeLayout = ({
           activeOpacity={0.9}
           onPress={() => {
             setPlayerView("full");
+            setOverlayView("none")
           }}
           className="w-full absolute bottom-0 z-[999]"
           // style={[{ transform: [{ translateY }] }]}
@@ -224,14 +226,15 @@ const HomeLayout = ({
         >
           <View className="flex-1 h-full">
             {/* Minimize button at the top */}
-            {overlayView === "player" ? <Playing /> : <MusicOptions />}
-            {overlayView === "player" && isPlayerMenuOpen && (
+            <Playing />
+            {overlayView === "options" && <MusicOptions />}
+            {isPlayerMenuOpen && (
               <PlayerOptionsModal />
             )}
-            {overlayView === "player" && isPlaylistMenuOpen && (
+            {isPlaylistMenuOpen && (
               <SaveToPlaylistModal />
             )}
-            {overlayView === "player" && isPlaylistCreateModalOpen && (
+            {isPlaylistCreateModalOpen && (
               <CreatePlaylistModal />
             )}
           </View>
