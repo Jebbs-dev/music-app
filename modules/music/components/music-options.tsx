@@ -14,6 +14,7 @@ import {
 import UpNext from "./up-next";
 import Related from "./related";
 import Lyrics from "./lyrics";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -69,7 +70,7 @@ const MusicOptions = () => {
       }),
     ]).start(() => {
       setModalVisible(false);
-      setOverlayView("player");
+      setOverlayView("none");
       // Reset for next open
       optionsSlideAnim.setValue(SCREEN_HEIGHT);
       slideAnim.setValue(-100);
@@ -80,61 +81,67 @@ const MusicOptions = () => {
     <Modal
       animationType="none"
       visible={modalVisible}
-      transparent
+      // transparent
       onRequestClose={handleClose}
     >
-      <SafeAreaView className="h-full flex flex-col ">
-        <Animated.View
-          style={{
-            transform: [{ translateY: slideAnim }],
-          }}
-        >
-          <TouchableOpacity onPress={handleClose}>
-            <PlayingMini
-              position="top"
-              background="player"
-              backgroundColor=""
-            />
-          </TouchableOpacity>
-        </Animated.View>
-
-        <View className="h-full justify-end">
+      <LinearGradient
+        colors={["#181818", "#000000"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView className="h-full flex flex-col ">
           <Animated.View
             style={{
-              transform: [{ translateY: optionsSlideAnim }],
-              width: "100%",
+              transform: [{ translateY: slideAnim }],
             }}
           >
-            <View className="h-full bg-gray-100/30 rounded-t-2xl pb-8">
-              <View className=" px-4 py-2 mt-5">
-                <View className="border-b border-gray-300/30 flex flex-row justify-between w-full ">
-                  <TouchableOpacity
-                    className={`px-8 py-4 ${musicViewOption === "up next" ? "border-b-2 border-white" : ""}`}
-                    onPress={() => setMusicViewOption("up next")}
-                  >
-                    <Text className="text-white font-semibold">UP NEXT</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className={`px-8 py-4 ${musicViewOption === "lyrics" ? "border-b-2 border-white" : ""}`}
-                    onPress={() => setMusicViewOption("lyrics")}
-                  >
-                    <Text className="text-white font-semibold">LYRICS</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className={`px-8 py-4 ${musicViewOption === "related" ? "border-b-2 border-white" : ""}`}
-                    onPress={() => setMusicViewOption("related")}
-                  >
-                    <Text className="text-white font-semibold">RELATED</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {musicViewOption === "up next" && <UpNext />}
-              {musicViewOption === "lyrics" && <Lyrics />}
-              {musicViewOption === "related" && <Related />}
-            </View>
+            <TouchableOpacity onPress={handleClose}>
+              <PlayingMini
+                position="top"
+                background="player"
+                backgroundColor=""
+              />
+            </TouchableOpacity>
           </Animated.View>
-        </View>
-      </SafeAreaView>
+
+          <View className="h-full justify-end">
+            <Animated.View
+              style={{
+                transform: [{ translateY: optionsSlideAnim }],
+                width: "100%",
+              }}
+            >
+              <View className="h-full bg-gray-100/30 rounded-t-2xl pb-8">
+                <View className=" px-4 py-2 mt-5">
+                  <View className="border-b border-gray-300/30 flex flex-row justify-between w-full ">
+                    <TouchableOpacity
+                      className={`px-8 py-4 ${musicViewOption === "up next" ? "border-b-2 border-white" : ""}`}
+                      onPress={() => setMusicViewOption("up next")}
+                    >
+                      <Text className="text-white font-semibold">UP NEXT</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className={`px-8 py-4 ${musicViewOption === "lyrics" ? "border-b-2 border-white" : ""}`}
+                      onPress={() => setMusicViewOption("lyrics")}
+                    >
+                      <Text className="text-white font-semibold">LYRICS</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className={`px-8 py-4 ${musicViewOption === "related" ? "border-b-2 border-white" : ""}`}
+                      onPress={() => setMusicViewOption("related")}
+                    >
+                      <Text className="text-white font-semibold">RELATED</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                {musicViewOption === "up next" && <UpNext />}
+                {musicViewOption === "lyrics" && <Lyrics />}
+                {musicViewOption === "related" && <Related />}
+              </View>
+            </Animated.View>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
     </Modal>
   );
 };
