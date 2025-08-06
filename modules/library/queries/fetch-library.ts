@@ -1,12 +1,17 @@
+import { Album, Artist, SongData } from "@/modules/music/types/types";
 import { useMusicData } from "@/store/music-data";
 import api from "@/utils/api";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-
 export const useFetchLibrary = (userId: string) => {
-
-  const { setLibraryData } = useMusicData()
+  const {
+    setLibraryData,
+    setLibraryAlbums,
+    setLibrarySongs,
+    setLibraryArtists,
+    setLibraryPlaylists,
+  } = useMusicData();
 
   const query = useQuery({
     queryKey: ["library", userId],
@@ -18,12 +23,19 @@ export const useFetchLibrary = (userId: string) => {
     placeholderData: keepPreviousData,
   });
 
-  useEffect(()=> {
-    if(query.data){
+  useEffect(() => {
+    if (query.data) {
       const allLibraryData = query.data;
+
       setLibraryData(allLibraryData);
+      setLibrarySongs(allLibraryData.songs?.map((song: SongData) => song.song) || []);
+      setLibraryAlbums(
+        allLibraryData.albums?.map((album: Album) => album.album) || []
+      );
+      setLibraryArtists(allLibraryData.artists?.map((artist: Artist) => artist.artist) || []);
+      setLibraryPlaylists(allLibraryData.playlists || []);
     }
-  }, [query.data])
+  }, [query.data]);
 
   return query;
 };
