@@ -1,3 +1,4 @@
+import { useFetchLibrary } from "@/modules/library/queries/fetch-library";
 import { SongData } from "@/modules/music/types/types";
 import useAuthStore from "@/store/auth-store";
 import { useMusicControls } from "@/store/music-controls";
@@ -11,7 +12,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -36,17 +37,14 @@ const HomePage = () => {
     setAlbumModalVisible,
   } = useMusicView();
 
-  const { isPlaying, setIsPlaying, currentSong, setCurrentSong } =
-    useMusicControls();
+  const { setIsPlaying, setCurrentSong } = useMusicControls();
 
   const {
     data,
-    setMusicData,
     albumsData,
     artistsData,
     setCurrentArtist,
     setCurrentAlbum,
-    selectedSong,
     setSelectedSong,
   } = useMusicData();
 
@@ -73,6 +71,10 @@ const HomePage = () => {
   const totalPages = 3;
 
   const speedDialSongs = data.slice(0, 27);
+
+  useEffect(() => {
+    setCurrentSong(data[0]);
+  }, [data]);
 
   // Use useMemo to ensure quickPicks only loads once when data is available
   const quickPicks = useMemo(() => {
@@ -152,7 +154,7 @@ const HomePage = () => {
               ))}
             </ScrollView>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <View>
             <View className="mt-10 flex flex-row justify-between items-center mx-7 ">
               <Text className="text-white font-semibold text-2xl">
                 Quick Picks
@@ -165,7 +167,8 @@ const HomePage = () => {
                 </TouchableOpacity>
               </View>
             </View>
-
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex flex-col gap-4 mx-7">
                 {rows?.map((row, rowIndex) => (
