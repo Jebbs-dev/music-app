@@ -1,35 +1,82 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
+import GridView from "@/modules/library/components/grid-view";
+import ListView from "@/modules/library/components/list-view";
+import { Album, Artist, Playlist, SongData } from "@/modules/music/types/types";
+import useAuthStore from "@/store/auth-store";
+import { LibraryOptionsTypes, useLibraryView } from "@/store/library-view";
+import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
-import PlayingMini from "@/components/PlayingMini";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
-import { Link } from "expo-router";
-import ListView from "@/modules/library/components/list-view";
-import { useLibraryView } from "@/store/library-view";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import GridView from "@/modules/library/components/grid-view";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import EvilIcons from "@expo/vector-icons/EvilIcons";
+
+export type LibraryDataTypes =
+  | (SongData & { type: "SongData" })
+  | (Artist & { type: "Artist" })
+  | (Album & { type: "Album" })
+  | (Playlist & { type: "Playlist" });
+
+interface SeededTypes {
+  data: Artist | Album;
+  userId: string;
+  id: string;
+}
 
 const Library = () => {
   const { setSearchModalVisible } = useMusicView();
-  const { libraryDataView, setLibraryDataView } = useLibraryView();
+  const {
+    libraryDataView,
+    setLibraryDataView,
+    libraryOptions,
+    setLibraryOptions,
+  } = useLibraryView();
 
-  const libraryCategories = [
-    "Playlists",
-    "Songs",
-    "Albums",
-    "Artists",
-    "Podcasts",
+  const { user } = useAuthStore();
+
+  const { libraryData } = useMusicData();
+
+  // const librarySongs = fetchLibrary.data?.songs;
+  const libraryAlbums = libraryData?.albums;
+  const libraryArtists = libraryData?.artists;
+  const playlists = libraryData?.playlists;
+
+  const fetchedLibraryData = [
+    // ...(librarySongs?.map((song: SongData) => ({
+    //   ...song,
+    //   type: "SongData" as const,
+    // })) ?? []),
+    ...(libraryArtists?.map((artist: any) => ({
+      ...(artist.artist as Artist),
+      type: "Artist" as const,
+    })) ?? []),
+    ...(libraryAlbums?.map((album: any) => ({
+      ...(album.album as Album),
+      type: "Album" as const,
+    })) ?? []),
+    ...(playlists?.map((playlist: Playlist) => ({
+      ...playlist,
+      type: "Playlist" as const,
+    })) ?? []),
+  ];
+
+  const libraryCategories: { title: string; value: LibraryOptionsTypes }[] = [
+    { title: "Playlists", value: "playlists" },
+    { title: "Songs", value: "songs" },
+    { title: "Albums", value: "albums" },
+    { title: "Artists", value: "artists" },
+    { title: "Podcasts", value: "podcasts" },
   ];
 
   return (
@@ -43,7 +90,7 @@ const Library = () => {
         <SafeAreaView className="h-full">
           <View className="mt-5 w-full flex flex-row justify-between items-center px-4">
             <View>
-              <Text className="text-white text-2xl">Library</Text>
+              <Text className="text-white text-3xl font-semibold">Library</Text>
             </View>
             <View className="flex flex-row gap-6 items-center">
               <TouchableOpacity>
@@ -62,22 +109,45 @@ const Library = () => {
             </View>
           </View>
           <View className="mt-5">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8, padding: 16 }}
-            >
-              {libraryCategories.map((category, index) => (
-                <View
-                  key={index}
-                  className="border border-gray-300/20 bg-gray-400/20 rounded-lg px-4 py-3"
+            {libraryOptions !== "overview" ? (
+              <View className="mx-4 flex flex-row py-4">
+                <TouchableOpacity
+                  className="px-4 py-3 mr-3 bg-white rounded-lg items-center justify-center"
+                  onPress={() => setLibraryOptions("overview")}
                 >
-                  <Text className="text-white text-[16px] font-medium">
-                    {category}
+                  <EvilIcons name="close" size={24} color="black" />
+                </TouchableOpacity>
+
+                <View
+                  className={`border border-gray-300/20  rounded-lg px-4 py-3 bg-white`}
+                >
+                  <Text className={`text-[16px] font-medium text-stone-900 `}>
+                    {libraryOptions}
                   </Text>
                 </View>
-              ))}
-            </ScrollView>
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, padding: 16 }}
+              >
+                {libraryCategories.map((category, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => setLibraryOptions(category.value)}
+                  >
+                    <View
+                      className={`border border-gray-300/20  rounded-lg px-4 py-3 bg-gray-400/20`}
+                    >
+                      <Text className={`text-[16px] font-medium text-white`}>
+                        {category.title}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
           </View>
 
           <View className="mt-5 px-4 flex flex-row justify-between items-center">
@@ -108,7 +178,11 @@ const Library = () => {
           </View>
 
           <View className="mt-5 mx-4">
-            {libraryDataView === "gridView" ? <ListView /> : <GridView />}
+            {libraryDataView === "listView" ? (
+              <ListView data={fetchedLibraryData} />
+            ) : (
+              <GridView data={fetchedLibraryData} />
+            )}
           </View>
         </SafeAreaView>
       </LinearGradient>
