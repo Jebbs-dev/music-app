@@ -26,7 +26,7 @@ import PlayingMini from "@/components/PlayingMini";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import ArtistProfile from "../../components/artist-profile";
 import SearchOverlay from "../../components/search-modal";
-import AlbumSongs from "../album-songs";
+import AlbumSongs from "../../components/album-songs";
 import CreatePlaylistModal from "@/components/create-playlist-modal";
 import { useFetchLibrary } from "@/modules/library/queries/fetch-library";
 import useAuthStore from "@/store/auth-store";
