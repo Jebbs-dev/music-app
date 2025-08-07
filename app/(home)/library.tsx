@@ -28,12 +28,6 @@ export type LibraryDataTypes =
   | (Album & { type: "Album" })
   | (Playlist & { type: "Playlist" });
 
-interface SeededTypes {
-  data: Artist | Album;
-  userId: string;
-  id: string;
-}
-
 const Library = () => {
   const { setSearchModalVisible } = useMusicView();
   const {
