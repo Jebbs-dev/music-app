@@ -24,10 +24,10 @@ interface MusicDataState {
   // Additional state for selected song
   selectedSong: SongData | null;
   setSelectedSong: (song: SongData) => void;
-  currentArtist: Artist | null;
-  setCurrentArtist: (artist: Artist) => void;
-  currentAlbum: Album | null;
-  setCurrentAlbum: (album: Album) => void;
+  currentArtist: Partial<Artist> | null;
+  setCurrentArtist: (artist: Partial<Artist>) => void;
+  currentAlbum: Partial<Album> | null;
+  setCurrentAlbum: (album: Partial<Album>) => void;
   libraryData: Library | null;
   setLibraryData: (library: Library) => void;
   librarySongs: SongData[];
@@ -57,9 +57,9 @@ export const useMusicData = create<MusicDataState>((set, get) => ({
   },
   selectedSong: null as SongData | null,
   setSelectedSong: (song) => set({ selectedSong: song }),
-  currentArtist: null as Artist | null,
+  currentArtist: null as Partial<Artist> | null,
   setCurrentArtist: (artist) => set({ currentArtist: artist }),
-  currentAlbum: null as Album | null,
+  currentAlbum: null as Partial<Album> | null,
   setCurrentAlbum: (album) => set({ currentAlbum: album }),
   libraryData: null as Library | null,
   setLibraryData: (library) => set({ libraryData: library }),
