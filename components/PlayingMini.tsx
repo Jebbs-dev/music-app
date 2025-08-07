@@ -1,3 +1,4 @@
+import { Artist } from "@/modules/music/types/types";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -16,6 +17,12 @@ const PlayingMini = ({
   backgroundColor,
 }: PlayerMiniProps) => {
   const { player, isPlaying, setIsPlaying, currentSong } = useMusicControls();
+
+  const { artistsData } = useMusicData();
+
+  const currentArtist: Artist | undefined = artistsData?.find(
+    (artist) => artist.id === currentSong?.artistId
+  );
 
   return (
     <>
@@ -46,7 +53,7 @@ const PlayingMini = ({
               {currentSong && currentSong.title}
             </Text>
             <Text className="text-gray-300">
-              {currentSong && currentSong.artist?.name}
+              {currentSong && currentArtist?.name}
             </Text>
           </View>
         </View>
