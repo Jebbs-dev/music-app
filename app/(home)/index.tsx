@@ -5,6 +5,7 @@ import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
 import { chunkIntoRows } from "@/utils/chunk-into-rows";
+import { useMusicContextActions } from "@/utils/music-context-helpers";
 import { getRandomSongsWithVariedArtists } from "@/utils/random-songs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -47,6 +48,8 @@ const HomePage = () => {
     setCurrentAlbum,
     setSelectedSong,
   } = useMusicData();
+
+  const { startCustomPlaylist } = useMusicContextActions();
 
   const filteredAlbums = albumsData.filter(
     (album) => album.artistId === artistsData[1]?.id
@@ -95,6 +98,12 @@ const HomePage = () => {
   const columns = [0, 1, 2].map((colIndex) =>
     currentItems.slice(colIndex * 3, colIndex * 3 + 3)
   );
+
+  const handleCustomPlaylist = () => {
+    if (quickPicks && quickPicks.length > 0)
+      startCustomPlaylist(quickPicks[0], quickPicks, "Quick Picks");
+    setPlayerView("full");
+  };
 
   const handleGesture = ({ nativeEvent }: any) => {
     if (nativeEvent.state === State.END) {
@@ -160,7 +169,10 @@ const HomePage = () => {
                 Quick Picks
               </Text>
               <View className="flex flex-row items-center gap-3">
-                <TouchableOpacity className="px-2 py-1 border border-gray-700 rounded-full">
+                <TouchableOpacity
+                  className="px-2 py-1 border border-gray-700 rounded-full"
+                  onPress={handleCustomPlaylist}
+                >
                   <Text className="text-xs text-white font-semibold">
                     Play all
                   </Text>
