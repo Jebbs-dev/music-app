@@ -1,8 +1,9 @@
 import RoundedButton from "@/components/rounded-button";
-import { SongData } from "@/modules/music/types/types";
+import { Album, Artist, SongData } from "@/modules/music/types/types";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
 import { chunkIntoRows } from "@/utils/chunk-into-rows";
+import { useMusicContextActions } from "@/utils/music-context-helpers";
 import { getYear } from "@/utils/time-format";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
@@ -20,44 +21,79 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { createArtistRadio } from "@/utils/music-context-helpers";
 
-const ArtistProfile = () => {
-  const MAX_ROWS = 4;
-
-  const { currentArtist } = useMusicData();
-
-  const { setArtistModalVisible, setSearchModalVisible } =
-    useMusicView();
-
-  const rows = chunkIntoRows(currentArtist?.songs || [], MAX_ROWS);
-
-  const image = { uri: String(currentArtist?.image) };
-
-  const singles = currentArtist?.songs?.filter((song) => song.albumId === null);
-
-  interface MediaImageProps {
+interface MediaImageProps {
   coverImage?: string | any;
   size: number;
   className?: string;
 }
 
-const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "" }) => {
+const MediaImage: React.FC<MediaImageProps> = ({
+  coverImage,
+  size,
+  className = "",
+}) => {
   const imageStyle = `w-${size} h-${size} rounded-md ${className}`;
-  
+
   if (coverImage) {
     return (
       <View className={imageStyle}>
         <Image
-          source={typeof coverImage === "string" ? { uri: coverImage } : coverImage}
+          source={
+            typeof coverImage === "string" ? { uri: coverImage } : coverImage
+          }
           alt="media image"
           className="w-full h-full rounded-md"
         />
       </View>
     );
   }
-  
+
   return <View className={`${imageStyle} bg-gray-600`} />;
 };
+
+const ArtistProfile = () => {
+  const MAX_ROWS = 4;
+
+  const {
+    currentArtist: currentArtistData,
+    artistsData,
+    albumsData,
+    data,
+    setCurrentAlbum,
+  } = useMusicData();
+
+  const { setArtistModalVisible, setSearchModalVisible, setAlbumModalVisible } =
+    useMusicView();
+
+  const { startArtistRadio } = useMusicContextActions();
+
+  const currentArtist: Artist | undefined = artistsData.find(
+    (artist) => artist.id === currentArtistData?.id
+  );
+
+  const artistSongs: SongData[] | undefined = data.filter(
+    (song) => song.artistId === currentArtist?.id
+  );
+
+  const artistAlbums: Album[] | undefined = albumsData.filter(
+    (album) => album.artistId === currentArtist?.id
+  );
+
+  const rows = chunkIntoRows(artistSongs || [], MAX_ROWS);
+
+  const image = { uri: String(currentArtist?.image) };
+
+  const singles = artistSongs?.filter((song) => song.albumId === null);
+
+  const handlePlayArtistSongs = () => {
+    if (currentArtist && artistSongs && artistSongs.length > 0) {
+      const firstSong = artistSongs[0];
+
+      startArtistRadio(firstSong);
+    }
+  };
 
   return (
     <View className="flex-1 bg-black/95">
@@ -88,7 +124,10 @@ const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "
                 </TouchableOpacity>
               </View>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 180 }}
+            >
               <View className="mt-48 mx-7 ">
                 <Text className="text-4xl font-bold text-white ">
                   {currentArtist?.name}
@@ -114,9 +153,7 @@ const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "
                     <RoundedButton
                       icon="play"
                       iconType="ionicon"
-                      onPress={() => {
-                        console.log("play");
-                      }}
+                      onPress={handlePlayArtistSongs}
                       color="black"
                       className="p-4 bg-white"
                     />
@@ -147,7 +184,10 @@ const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "
                           <TouchableOpacity key={`${rowIndex}-${colIndex}`}>
                             <View className="max-w-[320px] flex flex-row items-center justify-between py-3">
                               <View className="flex flex-row items-center">
-                                <MediaImage coverImage={item.coverImage} size={14} />
+                                <MediaImage
+                                  coverImage={item.coverImage}
+                                  size={14}
+                                />
                                 <View className="flex flex-col gap-1 ml-5">
                                   <Text
                                     className="text-white font-semibold truncate w-64"
@@ -189,18 +229,26 @@ const MediaImage: React.FC<MediaImageProps> = ({ coverImage, size, className = "
                   </View>
 
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {currentArtist?.albums?.map((album, idx) => (
-                      <View key={idx} className="mr-4 mt-5">
-                        <MediaImage coverImage={album.coverImage} size={40} />
+                    {artistAlbums?.map((album, idx) => (
+                      <TouchableOpacity
+                        key={idx}
+                        onPress={() => {
+                          setAlbumModalVisible(true);
+                          setCurrentAlbum(album);
+                        }}
+                      >
+                        <View className="mr-4 mt-5">
+                          <MediaImage coverImage={album.coverImage} size={40} />
 
-                        <Text className="text-white text-lg font-semibold mt-2">
-                          {album.title}
-                        </Text>
-                        <Text className="text-gray-400">
-                          {album.releaseDate &&
-                            getYear(String(album.releaseDate))}
-                        </Text>
-                      </View>
+                          <Text className="text-white text-lg font-semibold mt-2">
+                            {album.title}
+                          </Text>
+                          <Text className="text-gray-400">
+                            {album.releaseDate &&
+                              getYear(String(album.releaseDate))}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
                     ))}
                   </ScrollView>
                 </View>
