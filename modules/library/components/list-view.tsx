@@ -7,6 +7,8 @@ import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   FlatList,
   Image,
@@ -15,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useMusicContextActions } from "@/utils/music-context-helpers";
 
 interface ListViewProps {
   data: LibraryDataTypes[];
@@ -32,6 +35,8 @@ const ListView = ({ data }: ListViewProps) => {
 
   const { setArtistModalVisible, setAlbumModalVisible, setPlayerView } =
     useMusicView();
+
+  const { startCustomPlaylist } = useMusicContextActions();
 
   const {
     data: AllSongs,
@@ -60,27 +65,50 @@ const ListView = ({ data }: ListViewProps) => {
               ? []
               : [];
 
+  const handleCustomPlaylist = () => {
+    if (librarySongs && librarySongs.length > 0) {
+      startCustomPlaylist(librarySongs[0], librarySongs, "Saved Songs");
+      setPlayerView("full");
+    }
+  };
+
   const renderAutoPlaylist = () => (
-    <View className="w-full h-20 flex flex-row items-center justify-between mb-4">
-      <View className="flex flex-row items-center">
-        <View className="w-14 h-14 bg-white rounded-sm"></View>
-        <View className="flex flex-col gap-1 ml-3">
-          <Text className="text-white font-semibold">Liked Music</Text>
-          <View className="flex flex-row items-center gap-2">
-            <MaterialCommunityIcons name="pin" size={16} color="white" />
-            <Text className="text-gray-300">Auto Playlist</Text>
+    <TouchableOpacity onPress={handleCustomPlaylist}>
+      <View className="w-full h-20 flex flex-row items-center justify-between mb-4">
+        <View className="flex flex-row items-center">
+          <View className="w-14 h-14 rounded-sm">
+            <LinearGradient
+              colors={["#945034", "#A86523", "#5F8B4C"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                flex: 1,
+                borderRadius: 2,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <AntDesign name="like1" size={26} color="white" />
+            </LinearGradient>
+          </View>
+          <View className="flex flex-col gap-1 ml-3">
+            <Text className="text-white font-semibold">Liked Music</Text>
+            <View className="flex flex-row items-center gap-2">
+              <MaterialCommunityIcons name="pin" size={16} color="white" />
+              <Text className="text-gray-300">Auto Playlist</Text>
+            </View>
           </View>
         </View>
+        <View>
+          <Entypo
+            name="dots-three-vertical"
+            size={12}
+            className="mr-2"
+            color="white"
+          />
+        </View>
       </View>
-      <View>
-        <Entypo
-          name="dots-three-vertical"
-          size={12}
-          className="mr-2"
-          color="white"
-        />
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderLibraryItem = (libraryData: LibraryDataTypes) => {
@@ -182,7 +210,7 @@ const ListView = ({ data }: ListViewProps) => {
     const isPlaylistView =
       libraryOptions === "playlists" && libraryViewData.type === "Playlist";
 
-      const songData = isSongView
+    const songData = isSongView
       ? AllSongs.find((song) => song.id === libraryViewData.id)
       : null;
 

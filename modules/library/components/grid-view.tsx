@@ -5,7 +5,10 @@ import { useLibraryView } from "@/store/library-view";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
+import { useMusicContextActions } from "@/utils/music-context-helpers";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface GridViewProps {
@@ -34,6 +37,8 @@ const GridView = ({ data }: GridViewProps) => {
   const { setArtistModalVisible, setAlbumModalVisible, setPlayerView } =
     useMusicView();
 
+  const { startCustomPlaylist } = useMusicContextActions();
+
   const dataToShow =
     libraryOptions === "songs"
       ? librarySongs.map((song) => ({ ...song, type: "SongData" as const }))
@@ -53,17 +58,40 @@ const GridView = ({ data }: GridViewProps) => {
               ? []
               : [];
 
+  const handleCustomPlaylist = () => {
+    if (librarySongs && librarySongs.length > 0) {
+      startCustomPlaylist(librarySongs[0], librarySongs, "Saved Songs");
+      setPlayerView("full");
+    }
+  };
+
   const renderAutoPlaylist = () => (
-    <View className="w-[48%]">
-      <View className="w-full h-48 rounded-md bg-gray-200" />
-      <View className="flex flex-col mt-2 gap-1">
-        <Text className="text-white font-semibold">Liked Music</Text>
-        <View className="flex flex-row items-center gap-2">
-          <MaterialCommunityIcons name="pin" size={16} color="white" />
-          <Text className="text-gray-300">Auto Playlist</Text>
+    <TouchableOpacity className="w-[48%]" onPress={handleCustomPlaylist}>
+      <View className="w-full">
+        <View className="w-full h-48 rounded-md">
+          <LinearGradient
+            colors={["#945034", "#A86523", "#5F8B4C"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              flex: 1,
+              borderRadius: 6,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <AntDesign name="like1" size={52} color="white" />
+          </LinearGradient>
+        </View>
+        <View className="flex flex-col mt-2 gap-1">
+          <Text className="text-white font-semibold">Liked Music</Text>
+          <View className="flex flex-row items-center gap-2">
+            <MaterialCommunityIcons name="pin" size={16} color="white" />
+            <Text className="text-gray-300">Auto Playlist</Text>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderLibraryItem = (libraryData: LibraryDataTypes) => {
