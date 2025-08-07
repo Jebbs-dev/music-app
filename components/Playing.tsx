@@ -1,9 +1,7 @@
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { formatTime } from "@/utils/time-format";
-// import Slider from "@react-native-community/slider";
 import { Slider } from "react-native-awesome-slider";
-
 import { Artist } from "@/modules/music/types/types";
 import { useMusicView } from "@/store/music-view";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -12,10 +10,8 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { createAudioPlayer, setAudioModeAsync } from "expo-audio";
-import { Link } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
-  Animated,
   Dimensions,
   Image,
   SafeAreaView,
@@ -28,21 +24,25 @@ import { useSharedValue } from "react-native-reanimated";
 import NeumorphicButton from "./neumorphic-button";
 import RoundedButton from "./rounded-button";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAddSongToPlaylist } from "@/modules/library/mutations/add-song-to-playlist";
 import { useAddSongToLibrary } from "@/modules/library/mutations/add-song-to-library";
 import useAuthStore from "@/store/auth-store";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const { width } = Dimensions.get("window");
 
 const Playing = () => {
-  const { selectedSong, setSelectedSong, data, setCurrentArtist } =
-    useMusicData();
+  const {
+    selectedSong,
+    setSelectedSong,
+    data,
+    setCurrentArtist,
+    librarySongs,
+    artistsData,
+  } = useMusicData();
 
   const {
     isPlaying,
     setIsPlaying,
-    currentSongIndex,
-    setCurrentSongIndex,
     currentSong,
     setCurrentSong,
     position,
@@ -55,15 +55,22 @@ const Playing = () => {
     setRepeatMode,
     setIsPlayerMenuOpen,
     setPlayer,
-    player, // <-- get the global player instance
+    player,
     lastPlayedSongUrl,
     setLastPlayedSongUrl,
     setIsPlaylistMenuOpen,
+    currentSongIndex,
+    setCurrentSongIndex,
+    // New playlist properties
+    currentPlaylist,
+    playlistContext,
+    // New navigation methods
+    playNext,
+    playPrevious,
+    shuffle,
   } = useMusicControls();
 
   const {
-    dynamicColor,
-    setDynamicColor,
     setPlayerView,
     setOverlayView,
     setMusicViewOption,
@@ -74,8 +81,13 @@ const Playing = () => {
 
   const addSongToLibraryMutation = useAddSongToLibrary(
     String(user?.id),
-    currentSong.id
+    currentSong?.id
   );
+
+  const currentArtist: Artist | undefined = artistsData.find(
+    (artist: Artist) => artist.id === currentSong?.artistId
+  );
+
   // Only create the player once, and set it in Zustand if not already set
   React.useEffect(() => {
     if (!player) {
@@ -97,13 +109,7 @@ const Playing = () => {
       }
     };
     configureAudio();
-    return () => {
-      // stopProgressTracking(); // This function is no longer defined
-    };
   }, []);
-
-  // Add this ref to track the previous song URL
-  // const prevSongUrl = useRef<string | undefined>(undefined); // This ref is no longer needed
 
   // When currentSong changes, replace the audio source
   useEffect(() => {
@@ -111,7 +117,7 @@ const Playing = () => {
       player.replace(currentSong.url);
       setPosition(0);
       setDuration(0);
-      setLastPlayedSongUrl(currentSong.url); // update the global value
+      setLastPlayedSongUrl(currentSong.url);
     }
   }, [player, currentSong]);
 
@@ -122,22 +128,30 @@ const Playing = () => {
       player.play();
     } else {
       player.pause();
-      // stopProgressTracking(); // This function is no longer defined
     }
-    if (!currentSong) {
-      setCurrentSong(data[currentSongIndex]);
-    }
-    if (!selectedSong) {
-      setSelectedSong(data[currentSongIndex]);
-    }
-  }, [isPlaying, currentSongIndex, player]);
 
-  // Remove the effect that references player.status
+    // Initialize playlist if empty but we have data
+    if (currentPlaylist.length === 0 && data.length > 0 && currentSong?.id) {
+      // If no playlist is set, default to all songs
+      const songIndex = data.findIndex((s) => s.id === currentSong.id);
+      if (songIndex >= 0) {
+        const { setCurrentPlaylist, setCurrentSongIndex, setPlaylistContext } =
+          useMusicControls.getState();
+        setCurrentPlaylist(data);
+        setCurrentSongIndex(songIndex);
+        setPlaylistContext({ type: "all", name: "Library" });
+      }
+    }
+
+    if (!selectedSong && currentSong) {
+      setSelectedSong(currentSong);
+    }
+  }, [isPlaying, player, currentPlaylist, data, currentSong]);
+
   // Add polling for position and duration
   useEffect(() => {
     if (!player) return;
     const interval = setInterval(() => {
-      // These properties may exist on the player instance
       const currentTime =
         typeof player.currentTime === "number" && !isNaN(player.currentTime)
           ? player.currentTime
@@ -148,44 +162,47 @@ const Playing = () => {
           : 0;
       setPosition(currentTime);
       setDuration(duration);
-      // Optionally, handle end of track logic if player.didJustFinish is available
-    }, 500); // Poll every 500ms
+    }, 500);
     return () => clearInterval(interval);
   }, [player]);
 
-  // Remove progress, maximumValue, and progressInterval if not essential
-  // If you need slider progress, use local state or Zustand
+  // Auto-advance to next song when current song ends
+  useEffect(() => {
+    if (duration > 0 && position >= duration - 0.5) {
+      // 0.5 second buffer
+      if (repeatMode === "one") {
+        // Restart the same song
+        if (player) {
+          player.seekTo(0);
+          setPosition(0);
+        }
+      } else {
+        // Move to next song
+        playNext();
+      }
+    }
+  }, [position, duration, repeatMode, playNext]);
+
   const progress = useSharedValue(position);
   const minimumValue = useSharedValue(0);
   const maximumValue = useSharedValue(duration || 1);
-  // const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Remove or comment out the effect that used progress and maximumValue
   useEffect(() => {
     progress.value = position;
     maximumValue.value = duration || 1;
   }, [position, duration]);
 
-  // const translateX = useRef(new Animated.Value(width)).current;
-
-  // useEffect(() => {
-  //   Animated.loop(
-  //     Animated.timing(translateX, {
-  //       toValue: -width,
-  //       duration: 8000,
-  //       useNativeDriver: true,
-  //     })
-  //   ).start();
-  // }, []);
-
-  // Remove stopProgressTracking if not used elsewhere
-  // function stopProgressTracking() {}
+  const isSongInLibrary = librarySongs.some(
+    (song) => song.id === currentSong?.id
+  );
 
   const handleAddSongToLibrary = async () => {
     try {
-      await addSongToLibraryMutation.mutateAsync(currentSong);
+      if (currentSong?.id) {
+        await addSongToLibraryMutation.mutateAsync(currentSong);
+      }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -200,36 +217,19 @@ const Playing = () => {
     }
   };
 
-  const getNextSongIndex = () => {
-    if (isShuffleOn) {
-      return Math.floor(Math.random() * data.length);
-    }
-    return (currentSongIndex + 1) % data.length;
-  };
-
-  const getPreviousSongIndex = () => {
-    if (isShuffleOn) {
-      return Math.floor(Math.random() * data.length);
-    }
-    return currentSongIndex === 0 ? data.length - 1 : currentSongIndex - 1;
-  };
-
   const handleNext = () => {
-    const nextIndex = getNextSongIndex();
-    setCurrentSongIndex(nextIndex);
-
-    setIsPlaying(true);
+    console.log("Next Button Pressed");
+    playNext();
   };
 
   const handlePrevious = () => {
-    const prevIndex = getPreviousSongIndex();
-    setCurrentSongIndex(prevIndex);
-
-    setIsPlaying(true);
+    console.log("Previous Button Pressed");
+    playPrevious();
   };
 
   const handleShuffle = () => {
-    setIsShuffleOn(!isShuffleOn);
+    console.log("Shuffle Button Pressed");
+    shuffle();
   };
 
   const handleRepeat = () => {
@@ -237,7 +237,38 @@ const Playing = () => {
     const currentIndex = modes.indexOf(repeatMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setRepeatMode(modes[nextIndex]);
+    console.log("Repeat mode changed to:", modes[nextIndex]);
   };
+
+  // Get context display text
+  const getContextText = () => {
+    switch (playlistContext.type) {
+      case "artist":
+        return `${playlistContext.name} Radio`;
+      case "album":
+        return `Playing from ${playlistContext.name}`;
+      case "all":
+        return "Playing from Library";
+      case "custom":
+        return `Playing from ${playlistContext.name}`;
+      default:
+        return "Now Playing";
+    }
+  };
+
+  if (!currentSong || !currentSong.id) {
+    return (
+      <LinearGradient
+        colors={["#181818", "#000000"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView className="h-full flex items-center justify-center">
+          <Text className="text-white text-lg">No song selected</Text>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -254,9 +285,14 @@ const Playing = () => {
               color="#fff"
               onPress={() => setPlayerView("minimized")}
             />
-            <Text className="text-center text-white text-sm font-semibold uppercase">
-              Playing Now
-            </Text>
+            <View className="flex flex-col items-center">
+              <Text className="text-center text-white text-sm font-semibold uppercase">
+                Playing Now
+              </Text>
+              <Text className="text-center text-gray-400 text-xs mt-1">
+                {getContextText()}
+              </Text>
+            </View>
             <MaterialCommunityIcons
               name="dots-vertical"
               size={24}
@@ -281,7 +317,6 @@ const Playing = () => {
           </View>
           <View className="mt-10 mx-7">
             <Text
-              // style={{ transform: [{ translateX }] }}
               className="text-center text-3xl font-semibold text-white"
               numberOfLines={1}
             >
@@ -291,10 +326,11 @@ const Playing = () => {
               onPress={() => {
                 setArtistModalVisible(true);
                 setCurrentArtist(currentSong?.artist as Artist);
+                setPlayerView("minimized");
               }}
             >
-              <Text className="text-center text-gray-400  mt-1">
-                {currentSong?.artist?.name}
+              <Text className="text-center text-gray-400 mt-1">
+                {currentArtist?.name}
               </Text>
             </TouchableOpacity>
           </View>
@@ -309,7 +345,11 @@ const Playing = () => {
                 className="flex flex-row items-center bg-stone-800 px-6 py-3 gap-3 rounded-full"
                 onPress={handleAddSongToLibrary}
               >
-                <Feather name="thumbs-up" size={20} color="white" />
+                {isSongInLibrary ? (
+                  <Ionicons name="thumbs-up-sharp" size={20} color="white" />
+                ) : (
+                  <Feather name="thumbs-up" size={20} color="white" />
+                )}
                 <Text className="text-white font-semibold">2.3k</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -339,7 +379,6 @@ const Playing = () => {
               }}
               onValueChange={(value) => {
                 console.log("Slider value changed to:", value);
-                // Update position without seeking (for visual feedback)
                 setPosition(value);
               }}
               theme={{
@@ -368,20 +407,14 @@ const Playing = () => {
             <RoundedButton
               icon="shuffle"
               iconType="ionicon"
-              onPress={() => {
-                console.log("Shuffle Button Pressed");
-                handleShuffle();
-              }}
+              onPress={handleShuffle}
               className={`py-6 ${isShuffleOn ? "text-orange-700" : "hover:bg-gray-700"}`}
               color={isShuffleOn ? "#c2410c" : "#ccc"}
             />
             <RoundedButton
               icon="play-skip-back"
               iconType="ionicon"
-              onPress={() => {
-                console.log("Previous Button Pressed");
-                handlePrevious();
-              }}
+              onPress={handlePrevious}
               className="p-6 hover:bg-gray-700"
               color="#ccc"
             />
@@ -396,52 +429,18 @@ const Playing = () => {
             <RoundedButton
               icon="play-skip-forward"
               iconType="ionicon"
-              onPress={() => {
-                console.log("Next Button Pressed");
-                handleNext();
-              }}
+              onPress={handleNext}
               className="p-6 hover:bg-gray-700"
               color="#ccc"
             />
-            {repeatMode === "none" && (
-              <RoundedButton
-                iconType="others"
-                otherIcon={MaterialIcons}
-                icon="repeat"
-                onPress={() => {
-                  console.log("Repeat Button Pressed");
-                  handleRepeat();
-                }}
-                className={`py-6 rounded-full`}
-                color="#ccc"
-              />
-            )}
-            {repeatMode === "one" && (
-              <RoundedButton
-                iconType="others"
-                otherIcon={MaterialIcons}
-                icon="repeat"
-                onPress={() => {
-                  console.log("Repeat Button Pressed");
-                  handleRepeat();
-                }}
-                className="py-6 rounded-full"
-                color="#c2410c"
-              />
-            )}
-            {repeatMode === "all" && (
-              <RoundedButton
-                iconType="others"
-                otherIcon={MaterialIcons}
-                icon="repeat"
-                onPress={() => {
-                  console.log("Repeat Button Pressed");
-                  handleRepeat();
-                }}
-                className={`py-6 rounded-full`}
-                color="#c2410c"
-              />
-            )}
+            <RoundedButton
+              iconType="others"
+              otherIcon={MaterialIcons}
+              icon="repeat"
+              onPress={handleRepeat}
+              className="py-6 rounded-full"
+              color={repeatMode !== "none" ? "#c2410c" : "#ccc"}
+            />
           </View>
           <View className="flex flex-row justify-between mt-12 mx-7 px-7">
             <TouchableOpacity>
