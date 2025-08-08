@@ -143,7 +143,7 @@ const HomePage = () => {
               </TouchableOpacity>
 
               <TouchableOpacity onPress={logout}>
-                <FontAwesome name="circle" size={24} color="gray" />
+                <FontAwesome name="user-circle" size={24} color="gray" />
               </TouchableOpacity>
             </View>
           </View>
