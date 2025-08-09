@@ -126,7 +126,7 @@ const HomePage = () => {
         // style={{ flex: 1 }}
       >
         <SafeAreaView className="h-full">
-          <View className="mt-5 w-full flex flex-row justify-between items-center px-4">
+          <View className="android:mt-14 mt-5 w-full flex flex-row justify-between items-center px-4">
             <View>
               <Text className="text-white text-2xl">App Logo</Text>
             </View>
@@ -164,7 +164,7 @@ const HomePage = () => {
             </ScrollView>
           </View>
           <View>
-            <View className="mt-10 flex flex-row justify-between items-center mx-7 ">
+            <View className="mt-10 android:mt-7 flex flex-row justify-between items-center mx-7 ">
               <Text className="text-white font-semibold text-2xl">
                 Quick Picks
               </Text>
@@ -182,7 +182,7 @@ const HomePage = () => {
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View className="flex flex-col gap-4 mx-7">
+              <View className="flex flex-col  mx-7">
                 {rows?.map((row, rowIndex) => (
                   <View key={rowIndex} className="flex flex-row gap-4">
                     {row?.map((item: SongData, colIndex: number) => (
@@ -245,7 +245,7 @@ const HomePage = () => {
               </View>
             </ScrollView>
 
-            <View className="h-20 w-full rounded-md flex flex-row items-center px-4 gap-2">
+            <View className="h-20 w-full rounded-md flex flex-row items-center px-4 gap-2 mt-4">
               <View className="w-12 h-12 rounded-full bg-red-900/90"></View>
               <View className="flex flex-col">
                 <Text className="text-white font-light">USER NAME</Text>
