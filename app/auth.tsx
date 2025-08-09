@@ -180,7 +180,7 @@ const Auth = () => {
     !signupErrors.name && !signupErrors.email && !signupErrors.password;
 
   const renderLoginForm = () => (
-    <View className="shadow-sm shadow-stone-900 bg-stone-800/50 rounded-3xl w-[80%] flex flex-col items-center px-5 py-12">
+    <View className="ios:shadow-sm ios:shadow-stone-900 bg-stone-800/50 rounded-3xl w-[80%] flex flex-col items-center px-5 py-12">
       <Text className="text-white text-2xl font-bold">Login</Text>
 
       <View className="w-full flex flex-col items-center mt-7 gap-5">
