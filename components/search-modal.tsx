@@ -102,7 +102,7 @@ const SearchOverlay = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <SafeAreaView className="h-full">
-            <View className="flex flex-row justify-between items-center mx-7 mt-2">
+            <View className="flex flex-row justify-between items-center mx-7 mt-2 android:mt-16">
               {/* {isPresented && ( */}
               <TouchableOpacity onPress={() => setSearchModalVisible(false)}>
                 {/* <Link href="../"> */}
@@ -112,7 +112,7 @@ const SearchOverlay = () => {
               {/* )} */}
 
               <TextInput
-                className="rounded-full px-3 py-2.5 w-[70%] bg-neutral-800 text-gray-400"
+                className="rounded-full px-3 py-2.5 w-[70%] bg-neutral-800 text-gray-200"
                 placeholder="Search songs, artists, podcasts"
                 autoFocus
                 ref={searchInputRef}
@@ -120,6 +120,7 @@ const SearchOverlay = () => {
                 onChangeText={(queryKey) => {
                   setQueryKey(queryKey);
                 }}
+                placeholderTextColor="gray"
               />
 
               <TouchableOpacity className="rounded-full p-2 ">

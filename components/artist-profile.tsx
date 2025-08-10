@@ -108,7 +108,7 @@ const ArtistProfile = () => {
           }}
         >
           <SafeAreaView className="h-full" style={{ zIndex: 9999 }}>
-            <View className="flex flex-row justify-between items-center mt-10 mx-7 bg-transparent">
+            <View className="flex flex-row justify-between items-center mt-10 android:mt-20 mx-7 bg-transparent">
               <TouchableOpacity
                 onPress={() => {
                   setArtistModalVisible(false);

@@ -82,7 +82,7 @@ const Library = () => {
         // style={{ flex: 1 }}
       >
         <SafeAreaView className="h-full">
-          <View className="mt-5 w-full flex flex-row justify-between items-center px-4">
+          <View className="android:mt-16 mt-5 w-full flex flex-row justify-between items-center px-4">
             <View>
               <Text className="text-white text-3xl font-semibold">Library</Text>
             </View>

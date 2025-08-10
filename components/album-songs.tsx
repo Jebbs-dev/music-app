@@ -109,7 +109,7 @@ const AlbumSongs = () => {
       end={{ x: 1, y: 1 }}
     >
       <SafeAreaView className="h-full mx-7">
-        <View className="flex flex-row justify-between mt-5">
+        <View className="flex flex-row justify-between mt-5 android:mt-16">
           <TouchableOpacity onPress={() => setAlbumModalVisible(false)}>
             <Entypo name="chevron-thin-left" size={18} color="#fff" />
           </TouchableOpacity>
