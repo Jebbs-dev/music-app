@@ -276,9 +276,9 @@ const Playing = () => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView className="h-full">
-        <View className="h-screen">
-          <View className="flex flex-row justify-between mx-7 items-center ios:mt-7 android:mt-14">
+      <View className="h-full">
+        <SafeAreaView className="h-full">
+          <View className="flex flex-row justify-between mx-7 items-center ios:mt-7 android:mt-16">
             <Entypo
               name="chevron-thin-down"
               size={18}
@@ -442,7 +442,7 @@ const Playing = () => {
               color={repeatMode !== "none" ? "#c2410c" : "#ccc"}
             />
           </View>
-          <View className="flex flex-row justify-between mt-12 mx-7 px-7">
+          <View className="flex flex-row justify-between mt-12 android:mt-20 mx-7 px-7">
             <TouchableOpacity>
               <Text
                 className="text-gray-400"
@@ -477,8 +477,8 @@ const Playing = () => {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </View>
     </LinearGradient>
   );
 };
