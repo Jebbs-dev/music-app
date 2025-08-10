@@ -11,9 +11,12 @@ const Lyrics = () => {
     .replace(/\\"/g, '"'); // unescape quotes if needed
 
   return (
-    <View className="h-full">
+    <View className="h-full pb-20">
       {formattedLyrics && formattedLyrics.trim() ? (
-        <ScrollView showsVerticalScrollIndicator={false} className="mb-40">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        >
           <Text
             style={{
               fontFamily: "serif",
