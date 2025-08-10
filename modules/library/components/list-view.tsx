@@ -134,7 +134,7 @@ const ListView = ({ data }: ListViewProps) => {
         }}
       >
         <View className="w-full h-20 flex flex-row items-center justify-between mb-2">
-          <View className="flex flex-row items-center">
+          <View className="flex flex-row items-center w-[80%]">
             <View
               className={`w-14 h-14 bg-white ${
                 isArtist
@@ -242,7 +242,7 @@ const ListView = ({ data }: ListViewProps) => {
         }}
       >
         <View className="w-full h-20 flex flex-row items-center justify-between mb-2">
-          <View className="flex flex-row items-center">
+          <View className="flex flex-row items-center w-[80%]">
             <View
               className={`w-14 h-14 bg-white ${
                 isArtistView
