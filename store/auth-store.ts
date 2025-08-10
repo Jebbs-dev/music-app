@@ -18,7 +18,7 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (authData: AuthData, user?: User) => void;
+  login: (authData: AuthData) => void;
   logout: () => void;
   setUser: (user: User) => void;
   authView: "login" | "signup";
@@ -61,19 +61,6 @@ export const setStorageItem = async (key: string, value: string | null): Promise
   }
 };
 
-export async function getStorageItemAsync(key: string): Promise<string | null> {
-  if (Platform.OS === 'web') {
-    try {
-      return localStorage.getItem(key);
-    } catch (e) {
-      console.error('Local storage is unavailable:', e);
-      return null;
-    }
-  } else {
-    return await SecureStore.getItemAsync(key);
-  }
-}
-
 // Custom storage implementation for Zustand persist middleware
 const createCustomStorage = () => {
   return {
@@ -110,7 +97,7 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: null,
       refreshToken: null,
 
-      login: (authData: AuthData,) => {
+      login: (authData: AuthData) => {
         set({ 
           isLoggedIn: true,
           accessToken: authData.access_token,
