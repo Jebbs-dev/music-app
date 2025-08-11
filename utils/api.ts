@@ -1,17 +1,18 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 
-import { setStorageItem, getStorageItem } from "@/store/auth-store";
+import useAuthStore, {
+  getStorageItem,
+  setStorageItem,
+} from "@/store/auth-store";
 
 const urls = [
-  "http://192.168.0.173:8000",
+  "http://192.168.0.174:8000",
   "http://192.168.100.23:8000",
   "http://192.168.73.197:8000",
 ];
 
 export const NEXT_PUBLIC_API_BASE_URL = "http://192.168.100.23:8000";
-
 // Helper function to get storage item
 
 // Helper function to check if token is about to expire
@@ -36,10 +37,23 @@ const isTokenExpiringSoon = (token: string, thresholdMinutes = 30): boolean => {
   }
 };
 
+// const getToken = async () => {
+//   const accessToken = await getStorageItem("access_token");
+//   return console.log("Refresh token:", accessToken);
+// };
+
+// getToken();
+
 // Function to refresh the token
 const refreshAuthToken = async (): Promise<string> => {
   try {
-    const refreshToken = await getStorageItem("refresh_token");
+    let refreshToken;
+
+    refreshToken = await getStorageItem("refresh_token");
+
+    if (!refreshToken) {
+      refreshToken = useAuthStore.getState().refreshToken;
+    }
 
     if (!refreshToken) {
       throw new Error("No refresh token available");
@@ -56,6 +70,11 @@ const refreshAuthToken = async (): Promise<string> => {
     await setStorageItem("access_token", access_token);
     await setStorageItem("refresh_token", refresh_token);
 
+    useAuthStore.setState({
+      accessToken: access_token,
+      refreshToken: refresh_token,
+    });
+
     return access_token;
   } catch (error) {
     console.error("Token refresh failed:", error);
@@ -68,7 +87,7 @@ const refreshAuthToken = async (): Promise<string> => {
 
 const api = axios.create({
   baseURL: NEXT_PUBLIC_API_BASE_URL,
-  timeout: 10000,
+  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -94,9 +113,13 @@ const processQueue = (error: any, token: string | null = null) => {
 
 api.interceptors.request.use(
   async (config) => {
-    let accessToken = null;
+    let accessToken;
     try {
       accessToken = await getStorageItem("access_token");
+
+      if (!accessToken) {
+        accessToken = useAuthStore.getState().accessToken;
+      }
     } catch (error) {
       console.error("Error getting access token:", error);
     }
@@ -181,7 +204,13 @@ export const setupSilentRefresh = () => {
   // Check for token refresh need on startup
   const checkAndRefreshToken = async () => {
     try {
-      const accessToken = await getStorageItem("access_token");
+      let accessToken;
+      accessToken = await getStorageItem("access_token");
+
+      if (!accessToken) {
+        accessToken = useAuthStore.getState().accessToken;
+      }
+
       if (!accessToken) return;
 
       // If token is going to expire in the next 2 hours, refresh it
