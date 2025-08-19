@@ -58,12 +58,13 @@ export type Playlist = {
   coverImage?: string;
   description?: string;
   userId: string;
-  libraryId: string;
+  // libraryId: string;
   songs?: SongData[];
   albums?: Album[];
   isPublic: boolean;
   createdAt?: string;
   updatedAt?: string;
+  _count?: Record<string, any>;
 };
 
 export type Library = {
