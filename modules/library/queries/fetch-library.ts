@@ -28,12 +28,15 @@ export const useFetchLibrary = (userId: string) => {
       const allLibraryData = query.data;
 
       setLibraryData(allLibraryData);
-      setLibrarySongs(allLibraryData.songs?.map((song: SongData) => song.song) || []);
-      setLibraryAlbums(
-        allLibraryData.albums?.map((album: Album) => album.album) || []
+      setLibrarySongs(
+        allLibraryData.songs?.map((song: SongData) => song) || []
       );
-      setLibraryArtists(allLibraryData.artists?.map((artist: Artist) => artist.artist) || []);
-      setLibraryPlaylists(allLibraryData.playlists || []);
+      setLibraryAlbums(
+        allLibraryData.albums?.map((album: Album) => album) || []
+      );
+      setLibraryArtists(
+        allLibraryData.artists?.map((artist: Artist) => artist) || []
+      );
     }
   }, [query.data]);
 
