@@ -12,12 +12,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Tabs } from "expo-router";
 import React from "react";
-import {
-  Dimensions,
-  StatusBar,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, StatusBar, TouchableOpacity, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -28,12 +23,11 @@ import Animated, {
 
 import PlayingMini from "@/components/PlayingMini";
 import Fontisto from "@expo/vector-icons/Fontisto";
-import ArtistProfile from "../../components/artist-profile";
 import SearchOverlay from "../../components/search-modal";
-import AlbumSongs from "../../components/album-songs";
 import CreatePlaylistModal from "@/components/create-playlist-modal";
 import { useFetchLibrary } from "@/modules/library/queries/fetch-library";
-import useAuthStore from "@/store/auth-store";
+import { useAuthStore } from "@/store/auth-store";
+import { useFetchPlaylistsByUserId } from "@/modules/library/queries/fetch-playlists";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -47,9 +41,7 @@ const HomeLayout = ({
     setPlayerView,
     overlayView,
     setOverlayView,
-    artistModalVisible,
     searchModalVisible,
-    albumModalVisible,
   } = useMusicView();
 
   const { user } = useAuthStore();
@@ -61,7 +53,7 @@ const HomeLayout = ({
 
   const { isLoading: iSSongsLoading } = useFetchSongs({
     take,
-  }); 
+  });
   const { isLoading: isAlbumsLoading } = useFetchAlbums({
     take,
   });
@@ -71,13 +63,19 @@ const HomeLayout = ({
 
   const { isLoading: isLibraryLoading } = useFetchLibrary(String(user?.id));
 
-  const loadingStates = iSSongsLoading && isAlbumsLoading && isArtistsLoading && isLibraryLoading;
+  const { isLoading: isPlaylistLoading } = useFetchPlaylistsByUserId(
+    String(user?.id)
+  );
 
- 
+  const loadingStates =
+    iSSongsLoading &&
+    isAlbumsLoading &&
+    isArtistsLoading &&
+    isLibraryLoading &&
+    isPlaylistLoading;
+
   const playerProgress = useSharedValue(0); // 0: minimized, 1: full
   const searchModalOpacity = useSharedValue(0);
-  const artistModalOpacity = useSharedValue(0);
-  const albumModalOpacity = useSharedValue(0);
 
   React.useEffect(() => {
     playerProgress.value = withTiming(playerView === "full" ? 1 : 0, {
@@ -90,18 +88,6 @@ const HomeLayout = ({
       duration: 300,
     });
   }, [searchModalVisible, searchModalOpacity]);
-
-  React.useEffect(() => {
-    artistModalOpacity.value = withTiming(artistModalVisible ? 1 : 0, {
-      duration: 300,
-    });
-  }, [artistModalVisible, artistModalOpacity]);
-
-  React.useEffect(() => {
-    albumModalOpacity.value = withTiming(albumModalVisible ? 1 : 0, {
-      duration: 300,
-    });
-  }, [albumModalVisible, albumModalOpacity]);
 
   const playerAnimatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
@@ -122,18 +108,6 @@ const HomeLayout = ({
     };
   });
 
-  const artistModalAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: artistModalOpacity.value,
-    };
-  });
-
-  const albumModalAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: albumModalOpacity.value,
-    };
-  });
-
   return (
     <>
       {loadingStates && (
@@ -146,7 +120,7 @@ const HomeLayout = ({
           />
         </View>
       )}
-      
+
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: "white",
@@ -186,6 +160,21 @@ const HomeLayout = ({
             ),
           }}
         />
+
+        <Tabs.Screen
+          name="playlists/[playlistId]"
+          options={{ href: null, headerShown: false }}
+        />
+
+        <Tabs.Screen
+          name="albums/[albumId]"
+          options={{ href: null, headerShown: false }}
+        />
+
+        <Tabs.Screen
+          name="artists/[artistId]"
+          options={{ href: null, headerShown: false }}
+        />
       </Tabs>
 
       {/* Mini Player positioned above tab bar */}
@@ -213,28 +202,6 @@ const HomeLayout = ({
         </Animated.View>
       )}
 
-      {/* Artist Profile Overlay */}
-      {artistModalVisible && (
-        <Animated.View
-          className="absolute top-0 left-0 right-0 bottom-0 z-30"
-          style={artistModalAnimatedStyle}
-          pointerEvents="box-none"
-        >
-          <ArtistProfile />
-        </Animated.View>
-      )}
-
-      {/* Album Modal Overlay */}
-      {albumModalVisible && (
-        <Animated.View
-          className="absolute top-0 left-0 right-0 bottom-0 z-40"
-          style={albumModalAnimatedStyle}
-          pointerEvents="box-none"
-        >
-          <AlbumSongs />
-        </Animated.View>
-      )}
-
       {/* Global Overlay Player */}
       {playerView === "full" && (
         <Animated.View
@@ -244,7 +211,7 @@ const HomeLayout = ({
             {
               height: "100%",
               zIndex: 9999,
-            }
+            },
           ]}
           pointerEvents="box-none"
         >
@@ -257,7 +224,7 @@ const HomeLayout = ({
           </View>
         </Animated.View>
       )}
-      
+
       <StatusBar barStyle="light-content" />
     </>
   );
