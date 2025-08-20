@@ -12,7 +12,7 @@ import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
   FlatList,
@@ -33,18 +33,14 @@ type SearchResult =
   | (Artist & { type: "Artist" });
 
 const SearchOverlay = () => {
-  const isPresented = router.canGoBack();
+  const router = useRouter();
 
   const { setIsPlaying, setCurrentSong } = useMusicControls();
 
-  const { data, setSelectedSong, setCurrentArtist, setCurrentAlbum } =
+  const { data, setSelectedSong, } =
     useMusicData();
-  const {
-    setSearchModalVisible,
-    setPlayerView,
-    setArtistModalVisible,
-    setAlbumModalVisible,
-  } = useMusicView();
+  const { setSearchModalVisible, setPlayerView } =
+    useMusicView();
 
   const searchInputRef = useRef(null);
   const [queryKey, setQueryKey] = useState("");
@@ -203,13 +199,11 @@ const SearchOverlay = () => {
                         }
 
                         if (item.type === "Artist") {
-                          setArtistModalVisible(true);
-                          setCurrentArtist(item);
+                          router.navigate(`/(home)/artists/${item.id}`);
                         }
 
                         if (item.type === "Album") {
-                          setAlbumModalVisible(true);
-                          setCurrentAlbum(item);
+                          router.navigate(`/(home)/albums/${item.id}`);
                         }
                       }}
                     >
