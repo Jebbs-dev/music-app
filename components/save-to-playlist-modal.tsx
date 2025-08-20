@@ -19,7 +19,8 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useMusicData } from "@/store/music-data";
 import { useAddSongToPlaylist } from "@/modules/library/mutations/add-song-to-playlist";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+import { useMusicView } from "@/store/music-view";
 
 const SaveToPlaylistModal = () => {
   const {
@@ -29,8 +30,11 @@ const SaveToPlaylistModal = () => {
     currentSong,
   } = useMusicControls();
 
-
   const { libraryPlaylists } = useMusicData();
+
+  const { setPlayerView } = useMusicView();
+
+  const router = useRouter();
 
   const addSongToPlaylistMutation = useAddSongToPlaylist(currentSong.id);
 
@@ -71,7 +75,8 @@ const SaveToPlaylistModal = () => {
         {
           text: "Library",
           onPress: () => {
-            router.push(`/(home)/library`)
+            router.navigate(`/(home)/library`);
+            setPlayerView("minimized");
             closeModal();
           },
           style: "default",
@@ -142,7 +147,7 @@ const SaveToPlaylistModal = () => {
                           className="text-xs text-gray-300 truncate"
                           numberOfLines={1}
                         >
-                          20 tracks
+                          {playlist._count?.songs} tracks
                         </Text>
                       </View>
                     </View>
@@ -185,7 +190,7 @@ const SaveToPlaylistModal = () => {
                             className="text-gray-300 truncate"
                             numberOfLines={1}
                           >
-                            20 tracks
+                            {playlist._count?.songs} tracks
                           </Text>
                         </View>
                       </View>
