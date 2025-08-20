@@ -39,12 +39,12 @@ const Library = () => {
 
   const { user } = useAuthStore();
 
-  const { libraryData } = useMusicData();
+  const { libraryData, libraryPlaylists } = useMusicData();
 
   // const librarySongs = fetchLibrary.data?.songs;
   const libraryAlbums = libraryData?.albums;
   const libraryArtists = libraryData?.artists;
-  const playlists = libraryData?.playlists;
+  const playlists = libraryPlaylists;
 
   const fetchedLibraryData = [
     // ...(librarySongs?.map((song: SongData) => ({
@@ -52,11 +52,11 @@ const Library = () => {
     //   type: "SongData" as const,
     // })) ?? []),
     ...(libraryArtists?.map((artist: any) => ({
-      ...(artist.artist as Artist),
+      ...(artist as Artist),
       type: "Artist" as const,
     })) ?? []),
     ...(libraryAlbums?.map((album: any) => ({
-      ...(album.album as Album),
+      ...(album as Album),
       type: "Album" as const,
     })) ?? []),
     ...(playlists?.map((playlist: Playlist) => ({
