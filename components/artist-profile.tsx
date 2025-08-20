@@ -22,6 +22,7 @@ import {
   View,
 } from "react-native";
 import { createArtistRadio } from "@/utils/music-context-helpers";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 interface MediaImageProps {
   coverImage?: string | any;
@@ -56,21 +57,18 @@ const MediaImage: React.FC<MediaImageProps> = ({
 const ArtistProfile = () => {
   const MAX_ROWS = 4;
 
-  const {
-    currentArtist: currentArtistData,
-    artistsData,
-    albumsData,
-    data,
-    setCurrentAlbum,
-  } = useMusicData();
+  const { artistsData, albumsData, data } = useMusicData();
 
-  const { setArtistModalVisible, setSearchModalVisible, setAlbumModalVisible } =
-    useMusicView();
+  const { setArtistModalVisible, setSearchModalVisible } = useMusicView();
 
   const { startArtistRadio } = useMusicContextActions();
 
+  const router = useRouter();
+
+  const { artistId } = useLocalSearchParams();
+
   const currentArtist: Artist | undefined = artistsData.find(
-    (artist) => artist.id === currentArtistData?.id
+    (artist) => artist.id === artistId
   );
 
   const artistSongs: SongData[] | undefined = data.filter(
@@ -111,7 +109,7 @@ const ArtistProfile = () => {
             <View className="flex flex-row justify-between items-center mt-10 android:mt-20 mx-7 bg-transparent">
               <TouchableOpacity
                 onPress={() => {
-                  setArtistModalVisible(false);
+                  router.back();
                 }}
               >
                 <Entypo name="chevron-thin-left" size={18} color="white" />
@@ -233,8 +231,7 @@ const ArtistProfile = () => {
                       <TouchableOpacity
                         key={idx}
                         onPress={() => {
-                          setAlbumModalVisible(true);
-                          setCurrentAlbum(album);
+                          router.navigate(`/(home)/albums/${album.id}`);
                         }}
                       >
                         <View className="mr-4 mt-5">
