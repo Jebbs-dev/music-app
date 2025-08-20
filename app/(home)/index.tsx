@@ -12,7 +12,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
@@ -30,24 +30,19 @@ const HomePage = () => {
 
   const { logout, user } = useAuthStore();
 
+  const router = useRouter();
+
   const {
     playerView,
     setPlayerView,
     setArtistModalVisible,
     setSearchModalVisible,
-    setAlbumModalVisible,
   } = useMusicView();
 
   const { setIsPlaying, setCurrentSong } = useMusicControls();
 
-  const {
-    data,
-    albumsData,
-    artistsData,
-    setCurrentArtist,
-    setCurrentAlbum,
-    setSelectedSong,
-  } = useMusicData();
+  const { data, albumsData, artistsData, setSelectedSong } =
+    useMusicData();
 
   const { startCustomPlaylist } = useMusicContextActions();
 
@@ -337,18 +332,10 @@ const HomePage = () => {
                 <View>
                   <TouchableOpacity
                     onPress={() => {
-                      setArtistModalVisible(true);
-                      setCurrentArtist(artistsData[1]);
+                      router.navigate(`/(home)/artists/${artistsData[0].id}`);
                     }}
                   >
-                    {/* <Link
-                      href="/artist-profile"
-                      onPress={() => {
-                        setCurrentArtist(artistsData[1]);
-                      }}
-                    > */}
                     <Entypo name="chevron-thin-right" size={15} color="white" />
-                    {/* </Link> */}
                   </TouchableOpacity>
                 </View>
               </View>
@@ -357,8 +344,7 @@ const HomePage = () => {
                   <View key={idx} className="mr-4">
                     <TouchableOpacity
                       onPress={() => {
-                        setAlbumModalVisible(true);
-                        setCurrentAlbum(album);
+                        router.navigate(`/(home)/albums/${album.id}`);
                       }}
                     >
                       <View className="h-40 w-40 rounded-md bg-white/30">
