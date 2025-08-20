@@ -27,6 +27,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAddSongToLibrary } from "@/modules/library/mutations/add-song-to-library";
 import useAuthStore from "@/store/auth-store";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -35,7 +36,6 @@ const Playing = () => {
     selectedSong,
     setSelectedSong,
     data,
-    setCurrentArtist,
     librarySongs,
     artistsData,
   } = useMusicData();
@@ -78,6 +78,8 @@ const Playing = () => {
   } = useMusicView();
 
   const { user } = useAuthStore();
+
+  const router = useRouter()
 
   const addSongToLibraryMutation = useAddSongToLibrary(
     String(user?.id),
@@ -324,8 +326,7 @@ const Playing = () => {
             </Text>
             <TouchableOpacity
               onPress={() => {
-                setArtistModalVisible(true);
-                setCurrentArtist(currentSong?.artist as Artist);
+                router.navigate(`/(home)/artists/${currentSong.artistId}`);
                 setPlayerView("minimized");
               }}
             >
