@@ -9,6 +9,7 @@ import { useMusicContextActions } from "@/utils/music-context-helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface GridViewProps {
@@ -23,8 +24,6 @@ const GridView = ({ data }: GridViewProps) => {
   const {
     selectedSong,
     setSelectedSong,
-    setCurrentArtist,
-    setCurrentAlbum,
     data: AllSongs,
     librarySongs,
     libraryAlbums,
@@ -34,10 +33,11 @@ const GridView = ({ data }: GridViewProps) => {
 
   const { setCurrentSong, setIsPlaying } = useMusicControls();
 
-  const { setArtistModalVisible, setAlbumModalVisible, setPlayerView } =
-    useMusicView();
+  const { setArtistModalVisible, setPlayerView } = useMusicView();
 
   const { startCustomPlaylist } = useMusicContextActions();
+
+  const router = useRouter();
 
   const dataToShow =
     libraryOptions === "songs"
@@ -105,14 +105,12 @@ const GridView = ({ data }: GridViewProps) => {
         onPress={() => {
           if (isArtist) {
             const artist: Artist = libraryData;
-            setCurrentArtist(artist);
-            setArtistModalVisible(true);
+            router.navigate(`/(home)/artists/${artist.id}`);
           }
 
           if (isAlbum) {
             const album: Album = libraryData;
-            setCurrentAlbum(album);
-            setAlbumModalVisible(true);
+            router.navigate(`/(home)/albums/${album.id}`);
           }
         }}
         className="w-[48%] mb-4"
@@ -200,14 +198,12 @@ const GridView = ({ data }: GridViewProps) => {
 
           if (isArtistView) {
             const artist: Artist = libraryViewData;
-            setCurrentArtist(artist);
-            setArtistModalVisible(true);
+            router.navigate(`/(home)/artists/${artist.id}`);
           }
 
           if (isAlbumView) {
             const album: Album = libraryViewData;
-            setCurrentAlbum(album);
-            setAlbumModalVisible(true);
+            router.navigate(`/(home)/albums/${album.id}`);
           }
         }}
         className="w-[48%] mb-4"

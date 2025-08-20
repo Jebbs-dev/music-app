@@ -5,19 +5,13 @@ import { useLibraryView } from "@/store/library-view";
 import { useMusicControls } from "@/store/music-controls";
 import { useMusicData } from "@/store/music-data";
 import { useMusicView } from "@/store/music-view";
+import { useMusicContextActions } from "@/utils/music-context-helpers";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useMusicContextActions } from "@/utils/music-context-helpers";
+import { useRouter } from "expo-router";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface ListViewProps {
   data: LibraryDataTypes[];
@@ -28,15 +22,15 @@ const ListView = ({ data }: ListViewProps) => {
 
   const { user } = useAuthStore();
 
-  const { selectedSong, setSelectedSong, setCurrentArtist, setCurrentAlbum } =
-    useMusicData();
+  const { selectedSong, setSelectedSong } = useMusicData();
 
   const { setCurrentSong, setIsPlaying } = useMusicControls();
 
-  const { setArtistModalVisible, setAlbumModalVisible, setPlayerView } =
-    useMusicView();
+  const { setPlayerView } = useMusicView();
 
   const { startCustomPlaylist } = useMusicContextActions();
+
+  const router = useRouter();
 
   const {
     data: AllSongs,
@@ -122,14 +116,17 @@ const ListView = ({ data }: ListViewProps) => {
         onPress={() => {
           if (isArtist) {
             const artist: Artist = libraryData;
-            setCurrentArtist(artist);
-            setArtistModalVisible(true);
+            router.navigate(`/(home)/artists/${artist.id}`);
           }
 
           if (isAlbum) {
             const album: Album = libraryData;
-            setCurrentAlbum(album);
-            setAlbumModalVisible(true);
+            router.navigate(`/(home)/albums/${album.id}`);
+          }
+
+          if (isPlaylist) {
+            const playlist: Playlist = libraryData;
+            router.navigate(`/(home)/playlists/${playlist.id}`);
           }
         }}
       >
@@ -230,14 +227,12 @@ const ListView = ({ data }: ListViewProps) => {
 
           if (isArtistView) {
             const artist: Artist = libraryViewData;
-            setCurrentArtist(artist);
-            setArtistModalVisible(true);
+            router.navigate(`/(home)/artists/${artist.id}`);
           }
 
           if (isAlbumView) {
             const album: Album = libraryViewData;
-            setCurrentAlbum(album);
-            setAlbumModalVisible(true);
+            router.navigate(`/(home)/albums/${album.id}`);
           }
         }}
       >
