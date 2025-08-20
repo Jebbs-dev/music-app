@@ -23,27 +23,25 @@ import { useMusicContextActions } from "@/utils/music-context-helpers";
 import { Album, Artist, SongData } from "@/modules/music/types/types";
 import { useAddAlbumToLibrary } from "@/modules/library/mutations/add-album-to-library";
 import useAuthStore from "@/store/auth-store";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 const AlbumSongs = () => {
-  const {
-    currentAlbum: currentAlbumData,
-    artistsData,
-    libraryAlbums,
-    albumsData,
-    setCurrentArtist,
-  } = useMusicData();
+  const { artistsData, libraryAlbums, albumsData } = useMusicData();
 
-  const { setSearchModalVisible, setAlbumModalVisible, setArtistModalVisible } =
-    useMusicView();
+  const { setSearchModalVisible } = useMusicView();
 
   const { currentSong, setIsPlaying } = useMusicControls();
 
   const { user } = useAuthStore();
 
+  const { albumId } = useLocalSearchParams();
+
+  const router = useRouter();
+
   const { startAlbumPlayback } = useMusicContextActions();
 
   const currentAlbum: Album | undefined = albumsData.find(
-    (album) => album.id === currentAlbumData?.id
+    (album) => album.id === albumId
   );
 
   const currentArtist: Artist | undefined = artistsData.find(
@@ -110,15 +108,13 @@ const AlbumSongs = () => {
     >
       <SafeAreaView className="h-full mx-7">
         <View className="flex flex-row justify-between mt-5 android:mt-16">
-          <TouchableOpacity onPress={() => setAlbumModalVisible(false)}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Entypo name="chevron-thin-left" size={18} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
-              setArtistModalVisible(true);
-              setAlbumModalVisible(false);
-              setCurrentArtist(currentAlbum?.artist as Artist);
+              router.navigate(`/(home)/artists/${currentArtist?.id}`);
             }}
           >
             <View className="flex flex-col gap-1 items-center">
@@ -240,7 +236,7 @@ const AlbumSongs = () => {
                   }`}
                 >
                   <View className="flex flex-row items-center gap-4">
-                    <View className="w-8 flex items-center">
+                    <View className="w-12 flex items-center">
                       {isCurrentSong(song.id) ? (
                         <View className="flex items-center justify-center w-6 h-6">
                           <MaterialCommunityIcons
@@ -250,9 +246,21 @@ const AlbumSongs = () => {
                           />
                         </View>
                       ) : (
-                        <Text className="text-white font-semibold">
-                          {(song as any).albumPosition || index + 1}
-                        </Text>
+                        <View className="w-12 h-12">
+                          {song && (
+                            <Image
+                              source={
+                                typeof song.coverImage === "string"
+                                  ? { uri: song.coverImage }
+                                  : song.coverImage
+                              }
+                              alt="image"
+                              width={25}
+                              height={25}
+                              className="w-full h-full rounded-sm"
+                            />
+                          )}
+                        </View>
                       )}
                     </View>
 
